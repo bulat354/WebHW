@@ -68,6 +68,8 @@ namespace MyServer
             var server = new HttpServer(url);
 
             var hint = @"
+Переместите папку source в папку с exe файлом.
+
 Имеются следующие команды:
 - start - запуск/перезапуск сервера;
 - stop - остановка сервера;

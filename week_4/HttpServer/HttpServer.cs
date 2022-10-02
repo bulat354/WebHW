@@ -10,26 +10,15 @@ namespace MyServer
         private Thread thread;
 
         public readonly string Url;
-        private string htmlPath;
-        private string mainPath;
+        private string defaultPath;
+        private string rootPath;
 
         public HttpServer(string url)
         {
             Url = url;
-            Init();
-        }
 
-        public void Init()
-        {
-            var exePath = Directory.GetCurrentDirectory();
-            var index = exePath.LastIndexOf("MyServer");
-            if (index == -1)
-            {
-                Debug.ProjectDirIsInvalidMsg();
-                return;
-            }
-            mainPath = exePath.Substring(0, index) + "MyServer/source/";
-            htmlPath = mainPath + "index.html";
+            rootPath = "./source/";
+            defaultPath = "./source/index.html";
 
             listener = new HttpListener();
             listener.Prefixes.Add(Url);
@@ -55,16 +44,11 @@ namespace MyServer
         private void Listen()
         {
             Debug.ListenerIsListeningMsg();
-            listener.BeginGetContext(CallBack, listener);
-        }
-
-        private void CallBack(IAsyncResult result)
-        {
             HttpListenerContext context;
 
             try
             {
-                context = listener.EndGetContext(result);
+                context = listener.GetContext();
             }
             catch
             {
@@ -88,14 +72,14 @@ namespace MyServer
 
         private string CreateFilePath(HttpListenerRequest request)
         {
-            var path = request.Url.ToString().Substring(Url.Length);
+            var path = request.RawUrl.Substring(8);
             if (path.Length == 0)
             {
-                return htmlPath;
+                return defaultPath;
             }
             else
             {
-                return mainPath + path;
+                return rootPath + path;
             }
         }
 
