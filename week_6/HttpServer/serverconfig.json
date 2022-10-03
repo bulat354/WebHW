@@ -1,0 +1,10 @@
+{
+  //listening url seems like "http://localhost:[port][webroot]/"
+  "port": 8080,
+  "webRoot": "/steam",
+
+  //localroot is a path to directory of static files
+  "localRoot": "./source",
+
+  "defaultFile": "/index.html",
+}

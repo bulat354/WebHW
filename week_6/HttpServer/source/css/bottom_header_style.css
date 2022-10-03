@@ -1,0 +1,167 @@
+.bottom-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    padding-top: 48px;
+    width: 100%;
+    
+    background-color: #181A21;
+}
+
+.left-join-box {
+    flex: 1;
+    max-width: 200px;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    text-align: center;
+}
+
+.left-join-text {
+    font-size: 14px;
+    color: #b8b6b4;
+}
+
+.left-join-show-more {
+    max-width: 60%;
+    text-align: center;
+    font-size: 14px;
+    
+    margin-top: 10px;
+    color: #FFFFFF;
+    
+    text-decoration: none;
+    
+    cursor: pointer;
+}
+
+.left-join-show-more:hover {
+    color: #00BBFF;
+}
+
+.center-join-box {
+    flex: 1;
+    max-width: 200px;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    text-align: center;
+    
+    width: 320px;
+}
+
+.right-join-box {
+    flex: 1;
+    max-width: 200px;
+    margin-top: 20px;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    text-align: center;
+}
+
+.right-join-button {
+    margin: 21px 1px 11px 1px;
+    padding: 0 15px;
+    
+    background: transparent;
+    
+    font-size: 15px;
+    line-height: 30px;
+    text-decoration: none;
+    color: #fff;
+    
+    display: block;
+    text-align: center;
+    
+    border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.4);
+    
+    cursor: pointer;
+}
+
+.right-join-button:hover {
+    border-color: white;
+}
+
+.right-steam-is-free {
+    text-align: center;
+    font-size: 14px;
+    color: #b8b6b4;
+}
+
+.footer-box {
+    background-color: #181A21;
+    height: 290px;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    
+    width: 100%;
+}
+
+.valve-corporation {
+    font-family: Arial, Helvetica, sans-serif;
+    
+    padding: 32px 0 60px 0;
+    width: 940px;
+    margin: 0px auto;
+    background: #171a21;
+    
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.rule {
+    height: 8px;
+    border-top: 1px solid #363c44;
+    
+    width: 100%;
+}
+
+.bottom-logos-box {
+    padding-top: 2px;
+    
+    display: flex;
+    justify-content: space-between;
+}
+
+.valve-corporation-image {
+    height: 26px;
+}
+
+.documents-box {
+    margin-left: 12px;
+    color: #8F98A0;
+    font-size: 12px;
+    line-height: 16px;
+    
+    text-align: left;
+}
+
+.bottom-text {
+    color: #C6D4DF;
+}
+
+.steam-links {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #61686D;
+}
+
+.link-image {
+    vertical-align: bottom;
+}
