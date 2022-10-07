@@ -28,11 +28,6 @@ namespace MyServer
             ShowMessage("Ожидание запроса...");
         }
 
-        public static void DirectoryNotFoundMsg()
-        {
-            ShowMessage("ERROR:\tДиректория не найдена");
-        }
-
         public static void FileNotFoundMsg()
         {
             ShowMessage("ERROR:\tФайл не найден");
@@ -65,7 +60,7 @@ namespace MyServer
 
         public static void RestartMsg()
         {
-            ShowMessage("Сервер перезапущен");
+            ShowMessage("Сервер перезапускается...");
         }
 
         public static void AlreadyStoppedMsg()

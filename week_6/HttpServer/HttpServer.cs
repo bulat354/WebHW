@@ -52,8 +52,8 @@ namespace MyServer
                 }
                 _listener.Prefixes.Add($"http://localhost:{_config.Port}{_config.WebRoot}/");
                 _listener.Start();
-                Debug.ListenerStartedMsg();
             }
+            Debug.ListenerStartedMsg();
 
             while (_listener.IsListening)
             {
@@ -67,45 +67,46 @@ namespace MyServer
                 {
                     return;
                 }
-
+                
                 var request = context.Request;
                 var response = context.Response;
-                Debug.RequestReceivedMsg(request.Url.ToString());
+                var rawUrl = request.RawUrl.ToString();
+                var url = request.Url.ToString();
+                Debug.RequestReceivedMsg(url);
 
-                var statusCode = 200;
-                try
+                if (rawUrl.StartsWith(_config.WebRoot + "/"))
                 {
-                    var path = ServerPath.GetPath(request.RawUrl, _config);
-                    var buffer = FileManager.ReadFile(path);
-
-                    response.OutputStream.Write(buffer, 0, buffer.Length);
-                    response.OutputStream.Close();
-                    response.ContentType = FileManager.GetType(Path.GetExtension(path));
+                    CreateResponse(request, response);
                 }
-                catch (DirectoryNotFoundException e)
+                else
                 {
-                    statusCode = 404;
-                    Debug.DirectoryNotFoundMsg();
+                    response.RedirectLocation = url + '/';
+                    response.StatusCode = (int)StatusCode.Redirect;
+                    response.Close();
                 }
-                catch (FileNotFoundException e)
-                {
-                    statusCode = 404;
-                    Debug.FileNotFoundMsg();
-                }
-                catch (ArgumentException e)
-                {
-                    statusCode = 400;
-                    Debug.InvalidPathMsg();
-                }
-                catch (Exception e)
-                {
-                    statusCode = 500;
-                    Debug.UnknownErrorMsg(e);
-                }
-                response.StatusCode = statusCode;
-                response.Close();
-                Debug.ResponseSendedMsg(statusCode);
+                Debug.ResponseSendedMsg(response.StatusCode);
             }
+        }
+
+        private void CreateResponse(HttpListenerRequest request, HttpListenerResponse response)
+        {
+            int statusCode;
+            try
+            {
+                var path = ServerPath.GetPath(request.RawUrl, _config);
+                statusCode = (int)FileManager.TryReadFile(path, out var buffer);
+
+                response.OutputStream.Write(buffer, 0, buffer.Length);
+                response.OutputStream.Close();
+                response.ContentType = FileManager.GetType(Path.GetExtension(path));
+            }
+            catch (Exception e)
+            {
+                statusCode = (int)StatusCode.ServerError;
+                Debug.UnknownErrorMsg(e);
+            }
+            response.StatusCode = statusCode;
+            response.Close();
         }
 
         public void Stop()
@@ -117,6 +118,7 @@ namespace MyServer
             }
 
             StopQuietly();
+            Debug.ListenerStoppedMsg();
         }
 
         private void StopQuietly()
@@ -124,11 +126,11 @@ namespace MyServer
             IsWorking = false;
             _listener.Stop();
             _listenerThread.Join();
-            Debug.ListenerStoppedMsg();
         }
 
         public void Restart()
         {
+            Debug.RestartMsg();
             if (IsWorking)
             {
                 StopQuietly();
@@ -138,7 +140,6 @@ namespace MyServer
             {
                 StartQuietly();
             }
-            Debug.RestartMsg();
         }
 
         public void Close()
@@ -151,5 +152,14 @@ namespace MyServer
         {
             Close();
         }
+    }
+
+    public enum StatusCode
+    {
+        Succesfully = 200,
+        Redirect = 303,
+        InvalidUrl = 400,
+        FileNotFound = 404,
+        ServerError = 500
     }
 }

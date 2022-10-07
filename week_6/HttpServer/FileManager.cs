@@ -400,15 +400,21 @@ namespace MyServer
         /// <param name="extension">String like '.png'</param>
         public static string GetType(string extension)
         {
-            var done = _mappings.TryGetValue(extension, out var result);
-            if (!done)
-                return null;
-            return result;
+            var done = _mappings.TryGetValue(extension, out var type);
+            return done ? type : null;
         }
 
-        public static byte[] ReadFile(string path)
+        public static StatusCode TryReadFile(string path, out byte[] buffer)
         {
-            return File.ReadAllBytes(path);
+            var done = File.Exists(path);
+            if (done)
+                buffer = File.ReadAllBytes(path);
+            else
+            {
+                Debug.FileNotFoundMsg();
+                buffer = null;
+            }
+            return done ? StatusCode.Succesfully : StatusCode.FileNotFound;
         }
     }
 }
