@@ -1,0 +1,41 @@
+.top-box {
+    display: none;
+}
+
+.footer-box {
+    display: none;
+}
+
+.mobile-top-header {
+    display: block;
+}
+
+.bottom-box {
+    padding-bottom: 120px;
+}
+
+.no-top-boxes {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.main-menu {
+    display: block;
+    overflow: visible;
+}
+
+.main-menu-flex {
+    display: flex;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+::-webkit-scrollbar-corner {
+    display: none;
+}
+
+::-webkit-scrollbar-thumb {
+    display: none;
+}

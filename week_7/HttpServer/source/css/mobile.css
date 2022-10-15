@@ -1,0 +1,37 @@
+.no-top-boxes {
+    background: radial-gradient(rgba(24, 26, 33, 0) 0%, #181A21 100%) fixed no-repeat, url(https://store.akamai.steamstatic.com/public/shared/images/joinsteam/new_login_bg_strong_mask_mobile.jpg) center top no-repeat, #181A21;
+}
+
+.center-box {
+    padding-top: 12px;
+    padding-bottom: 0px;
+}
+
+.center-entry-big-text {
+    text-align: center;
+}
+
+.center-entry-box {
+    background: none;
+    border: none;
+    
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+}
+
+.center-right-entry {
+    text-align: center;
+    margin-top: 48px;
+    margin-left: 0;
+    width: 200px;
+    align-items: center;
+}
+
+.new-function-image {
+    display: none;
+}
+
+.bottom-box {
+    flex-direction: column-reverse;
+}

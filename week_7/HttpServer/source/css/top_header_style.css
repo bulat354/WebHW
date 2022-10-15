@@ -1,0 +1,192 @@
+.top-box {
+    display: flex;
+    background-color: #171a21;
+    
+    justify-content: center;
+    align-items: center;
+    
+    padding: 0 16px;
+    width: 100%;
+    min-width: 940px;
+    height: 104px;
+    
+    font-family: "Motiva Sans", Sans-serif;
+    font-weight: normal;
+    
+    //padding-right: 33px;
+}
+
+.top-services-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    height: 44px;
+    
+    margin-right: 120px;
+    padding-top: 1px;
+}
+
+.top-main-box {
+    padding-top: 3px;
+}
+
+.logo-image {
+    height: 44px;
+    width: 176px;
+    
+    margin-right: 24px;
+    margin-top: 2px;
+}
+
+.top-tabs-box {
+    display: inline-flex;
+    align-content: center;
+    justify-content: space-evenly;
+    
+    position: relative;
+}
+
+.top-tab {
+    padding: 7px;
+    line-height: 16px;
+    font-size: 14px;
+    
+    text-transform: uppercase;
+    position: relative;
+}
+
+.store-tab:hover~.submenu-store {
+    pointer-events: auto;
+    opacity: 1; 
+}
+
+.comm-tab:hover~.submenu-community {
+    pointer-events: auto;
+    opacity: 1; 
+}
+
+.submenu {
+    position: absolute; 
+    z-index: 1500; 
+    opacity: 0; 
+    top: 30px; 
+    pointer-events: none;
+    background: #171a21;
+    padding: 5px 15px 10px 15px;
+    box-shadow: 3px 3px 5px -3px #000;
+    text-align: left;
+    max-width: 132px;
+}
+
+.submenu:hover {
+    pointer-events: auto;
+    opacity: 1; 
+}
+
+.submenu-store {
+    left: 1px;
+}
+
+.submenu-community {
+    left: 80.4625px; 
+}
+
+.submenu-item {
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 11px;
+    display: block;
+    padding: 6px 0;
+    padding-right: 10px;
+}
+
+.link-text {
+    text-decoration: none;
+    cursor: pointer;
+    color: #b8b6b4;
+}
+
+.link-text:hover {
+    color: white;
+}
+
+.top-account-box {
+    display: inline-flex;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    
+    height: 100%;
+    padding-top: 13px;
+    
+    font-size: 11px;
+}
+
+.top-download-button {
+    padding-left: 35px;
+    padding-right: 9px;
+    
+    display: inline-flex;
+    align-items: center;
+    
+    height: 24px;
+    
+    background-color: #5c7e10;
+    background-image: url(https://store.akamai.steamstatic.com/public/shared/images/header/btn_header_installsteam_download.png?v=1);
+    background-repeat: no-repeat;
+    background-position: 10px 5px;
+    
+    color: #e5e4dc;
+}
+
+.top-entry-buttons-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    margin: 0 6px;
+    
+    height: 24px;
+}
+
+.top-entry-text {
+    padding: 0 6px;
+}
+
+.language-popup {
+    background-image: url(https://store.akamai.steamstatic.com/public/shared/images/popups/btn_arrow_down_padded.png);
+    background-position: right center;
+    background-repeat: no-repeat;
+    padding-right: 18px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
