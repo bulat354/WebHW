@@ -8,57 +8,19 @@ using MyServer.Attributes;
 
 namespace MyServer.Controllers
 {
-    [HttpController("accounts")]
+    [ApiController("accounts")]
     internal class UsersController
     {
-        [HttpGet("id")]
-        public HttpResponse GetUser(int id)
-        {
-            if (id < 0 || id >= User.Users.Count)
-                return HttpResponse.GetNotFoundResponse();
-            return new HttpResponse(HttpStatusCode.OK, User.Users[id]);
-        }
-
         [HttpGet]
-        public List<User> GetUsers()
+        public User[] GetUsers()
         {
-            return User.Users;
-        }
-
-        [HttpGet]
-        public User[] GetUsers(int count)
-        {
-            return User.Users.Take(count).ToArray();
-        }
-
-        [HttpGet("count")]
-        public int GetCount()
-        {
-            return User.Users.Count;
+            return User.GetUsers();
         }
 
         [HttpPost("add")]
-        public void AddUser(int id, string name)
+        public void AddUser(string login, string pass) //void send code 204
         {
-            User.Users.Add(new User(id, name));
+            User.Add(login, pass);
         }
-    }
-
-    public class User
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-
-        public User(int id, string name)
-        {
-            Id = id;
-            Name = name;
-        }
-
-        public static List<User> Users { get; set; } = new List<User>()
-        {
-            new User(0, "Antonio"),
-            new User(1, "Montecarlo")
-        };
     }
 }

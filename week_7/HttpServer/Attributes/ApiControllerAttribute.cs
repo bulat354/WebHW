@@ -10,15 +10,15 @@ namespace MyServer.Attributes
     /// New controllers must have it
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class HttpControllerAttribute : Attribute
+    public class ApiControllerAttribute : Attribute
     {
         public string Name { get; protected set; }
 
-        public HttpControllerAttribute(string name)
+        public ApiControllerAttribute(string name)
         {
             Name = name;
         }
 
-        public HttpControllerAttribute() { }
+        public ApiControllerAttribute() { }
     }
 }

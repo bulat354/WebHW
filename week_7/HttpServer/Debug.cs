@@ -30,17 +30,17 @@ namespace MyServer
 
         public static void FileNotFoundMsg()
         {
-            ShowMessage("ERROR:\tФайл не найден");
+            ShowError("Файл не найден");
         }
 
         public static void InvalidPathMsg()
         {
-            ShowMessage("ERROR:\tКлиент указал неправильный путь");
+            ShowError("Клиент указал неправильный путь");
         }
 
         public static void UnknownErrorMsg(Exception e)
         {
-            ShowMessage($"ERROR:\tПроизошла ошибка сервера. Описание ошибки: \"{e.Message}\"");
+            ShowError($"Произошла ошибка сервера. Описание ошибки: \n\t\"{e}\"");
         }
 
         public static void RequestReceivedMsg(string request)
@@ -70,7 +70,7 @@ namespace MyServer
 
         public static void ConfigFileNotFoundMsg(string path)
         {
-            ShowMessage($"WARNING:\tФайл конфигурации не найден. Создан новый с настройками по умолчанию по пути '{path}'");
+            ShowWarning($"Файл конфигурации не найден. Создан новый по пути '{path}'");
         }
 
         public static void ConfigsLoadedMsg()
@@ -78,9 +78,34 @@ namespace MyServer
             ShowMessage("Настройки успешно загружены");
         }
 
+        public static void SendQueryToDBMsg()
+        {
+            ShowMessage("Отправка запроса на базу данных");
+        }
+
+        public static void QueryToDBSuccesMsg()
+        {
+            ShowMessage("Запрос успешно обработан базой данных");
+        }
+
+        public static void QueryToDBErrorMsg()
+        {
+            ShowWarning("Запрос базой данных не обработан");
+        }
+
         public static void ShowMessage(string message)
         {
             Console.WriteLine(message);
+        }
+
+        public static void ShowError(string message)
+        {
+            Console.WriteLine("ERROR:\t" + message);
+        }
+
+        public static void ShowWarning(string message)
+        {
+            Console.WriteLine("WARNING:\t" + message);
         }
 
         public static void StartDebugging(HttpServer server)

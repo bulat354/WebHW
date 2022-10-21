@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,27 +11,44 @@ namespace MyServer.Controllers
 {
     internal class ControllerMethodInfo
     {
-        public string Name { get; }
-        public object Controller { get; }
-        public MethodInfo Method { get; }
-        public Type[] ParameterTypes { get; }
-        public int ParametersCount { get; }
+        public readonly string Name;
+        public readonly bool IsVoid;
 
-        public ControllerMethodInfo(object controller, string controllerName, MethodInfo method, string methodName)
+        private readonly object? controller;
+        private readonly MethodInfo method;
+        private readonly HttpMethodAttribute httpAttribute;
+        private readonly ParameterInfo[] parameters;
+
+        public ControllerMethodInfo(object? controller, Type type, MethodInfo method)
         {
-            if (controllerName == null)
-                controllerName = controller.GetType().Name.ToLower();
-            if (methodName == null)
-                throw new ArgumentException();
+            if (Attribute.IsDefined(type, typeof(ApiControllerAttribute)))
+            {
+                this.controller = controller;
 
-            Controller = controller;
-            Method = method;
-            ParameterTypes = method.GetParameters()
-                .Select(param => param.ParameterType)
-                .ToArray();
-            ParametersCount = ParameterTypes.Length;
+                var controllerName = type.GetCustomAttribute<ApiControllerAttribute>().Name.ToLower();
+                if (controllerName == null)
+                    controllerName = type.Name.ToLower();
 
-            Name = $"{controllerName}.{methodName}.{ParametersCount}";
+                if (Attribute.IsDefined(method, typeof(HttpMethodAttribute)))
+                {
+                    this.method = method;
+                    httpAttribute = method.GetCustomAttribute<HttpMethodAttribute>();
+                    parameters = method.GetParameters();
+
+                    var methodName = httpAttribute.Name.ToLower();
+                    if (methodName.StartsWith('.'))
+                        methodName = method.Name.ToLower() + methodName;
+                    else if (methodName == null)
+                        methodName = method.Name.ToLower() + ".get";
+
+                    Name = $"{controllerName}.{methodName}";
+                    IsVoid = method.ReturnType == typeof(void);
+                }
+                else
+                    throw new ArgumentException("Method that was given doesn't have attribute HttpMethod");
+            }
+            else
+                throw new ArgumentException("Controller that was given doesn't have attribute HttpController");
         }
 
         public static IEnumerable<ControllerMethodInfo> GetMethods(Type controller)
@@ -38,20 +56,24 @@ namespace MyServer.Controllers
             var obj = Activator.CreateInstance(controller);
             return controller.GetMethods()
                 .Where(m => Attribute.IsDefined(m, typeof(HttpMethodAttribute)))
-                .Select(m => new ControllerMethodInfo
-                (
-                    obj, controller.GetCustomAttribute<HttpControllerAttribute>().Name.ToLower(),
-                    m, m.GetCustomAttribute<HttpMethodAttribute>().Name.ToLower()
-                ));
+                .Select(m => new ControllerMethodInfo(obj, controller, m));
         }
 
-        public object? Invoke(string[] strParams)
+        public object? Invoke(HttpListenerRequest request)
         {
-            object[] objParams = strParams
-                .Take(ParameterTypes.Length)
-                .Select((param, i) => Convert.ChangeType(param, ParameterTypes[i]))
-                .ToArray();
-            return Method.Invoke(Controller, objParams);
+            var strParams = httpAttribute.Parse(request);
+
+            object?[] objParams = new object?[parameters.Length];
+            for(int i = 0; i < parameters.Length; i++)
+            {
+                var param = parameters[i];
+                var str = strParams[param.Name];
+                if (str == null)
+                    return null;
+                objParams[i] = Convert.ChangeType(strParams[param.Name], param.ParameterType);
+            }
+
+            return method.Invoke(controller, objParams);
         }
     }
 }

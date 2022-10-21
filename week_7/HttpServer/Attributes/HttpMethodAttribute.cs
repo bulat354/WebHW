@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,11 +14,15 @@ namespace MyServer.Attributes
     [AttributeUsage(AttributeTargets.Method)]
     public abstract class HttpMethodAttribute : Attribute
     {
-        public string Name { get; protected set; }
+        public string Name { get; }
 
-        public HttpMethodAttribute(string name, string httpMethod)
+        public HttpMethodAttribute(string name)
         {
-            Name = $"{name}.{httpMethod}";
+            Name = $"{name}.{GetMethodName()}";
         }
+
+        public abstract string GetMethodName();
+
+        public abstract NameValueCollection Parse(HttpListenerRequest request);
     }
 }

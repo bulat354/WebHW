@@ -18,7 +18,7 @@ namespace MyServer.Controllers
         {
             methods = Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(t => Attribute.IsDefined(t, typeof(HttpControllerAttribute)))
+                .Where(t => Attribute.IsDefined(t, typeof(ApiControllerAttribute)))
                 .SelectMany(t => ControllerMethodInfo.GetMethods(t))
                 .ToDictionary(c => c.Name, c => c);
         }
@@ -31,24 +31,20 @@ namespace MyServer.Controllers
             string controllerName = segments[1].Replace("/", "").ToLower();
             string httpMethodName = request.HttpMethod.ToLower();
             string methodName = (segments.Length < 3)
-                ? methodName = ""
-                : methodName = segments[2].Replace("/", "").ToLower();
-            int paramCount = Math.Max(0, segments.Length - 3);
+                ? ""
+                : segments[2].Replace("/", "").ToLower();
 
-            string fullName = $"{controllerName}.{methodName}.{httpMethodName}.{paramCount}";
+            string fullName = $"{controllerName}.{methodName}.{httpMethodName}";
 
             if (methods.TryGetValue(fullName, out var method))
             {
-                string[] strParams = request.Url.Segments
-                                        .Skip(3)
-                                        .Select(s => s.Replace("/", ""))
-                                        .ToArray();
-                var result = method.Invoke(strParams);
+                var result = method.Invoke(request);
+
+                if (method.IsVoid)
+                    return HttpResponse.GetEmptyResponse();
 
                 if (result == null)
-                    return HttpResponse.GetEmptyResponse();
-                if (result is HttpResponse response)
-                    return response;
+                    return HttpResponse.GetNotFoundResponse();
 
                 return new HttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(result), "Application/json");
             }
