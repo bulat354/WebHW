@@ -1,0 +1,13 @@
+body {
+    background: center top / 100% url(../img/war-of-god.jpg) no-repeat;
+}
+
+.page {
+    background-color: #1a2e33;
+    color: var(--light-color);
+    box-shadow: 4px 5px 10px var(--shadow-color);
+}
+
+h4 {
+    margin: 0;
+}

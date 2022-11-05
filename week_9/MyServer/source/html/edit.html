@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="antiquewhite">
+        <title>Редактирование</title>
+        <link rel="icon" href="../img/logo.png">
+        <link rel="stylesheet" href="../css/common.css" type="text/css">
+        <link rel="stylesheet" href="../css/signin.css" type="text/css">
+        <link rel="stylesheet" href="../css/signup.css" type="text/css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="top-header">
+            <a href="../">
+                <img class="logo" src="../img/logo.png" alt="Gavno Games">
+            </a>
+            <div class="account">
+                |!%<a class="card top-login-button" href="../user/signin">Войти</a>
+                <a class="card top-login-button" href="../user/signup">Регистрация</a>%|
+                |%<a class="card user" href="../user/profile">
+                    <img class="user-image" src="../img/logo.png" alt="User">
+                </a>
+                <a class="card button" href="../data/edit?type=&id=">Добавить статью</a>%|
+            </div>
+        </div>
+        <form class="page" method="get" action="../data/add" name="signup" onsubmit="return validate();">
+            <h1>Изменение</h1>
+            <div class="input-box">
+                <label for="type">Тип статьи</label>
+                <select name="article-type" id="type">
+                    <option value="atricle" {{Type=article?selected:}}>Статья</option>
+                    <option value="game" {{Type=game?selected:}}>Игра</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label for="title">Название</label>
+                <input type="text" name="title" id="title" value="{{Title}}">
+            </div>
+            <div class="input-box">
+                <label for="image">Изображение</label>
+                <input type="text" name="imageUrl" id="image" value="{{ImageUrl}}">
+            </div>
+            <div class="input-box">
+                <label for="description">Описание</label>
+                <textarea type="text" name="description" id="description">{{Description}}</textarea>
+            </div>
+            <input class="" type="submit" id="submit" value="Сохранить">
+        </form>
+        <div class="bottom-header">
+            <img class="logo mini-logo" src="../img/logo.png" alt="Gavno Games">
+            <div class="bottom-header-text">Все изображения созданы при помощи <a href="https://dream.ai/create" target="_blank">нейросети</a>.</div>
+        </div>
+    </body>
+</html>

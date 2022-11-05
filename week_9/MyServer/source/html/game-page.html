@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="antiquewhite">
+        <title>{{Title}}</title>
+        <link rel="icon" href="../img/logo.png">
+        <link rel="stylesheet" href="../css/common.css" type="text/css">
+        <link rel="stylesheet" href="../css/signin.css" type="text/css">
+        <link rel="stylesheet" href="../css/game-page.css" type="text/css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    </head>
+    <body style="background: center top / 100% url({{ImageUrl}}) no-repeat;">
+        <div class="top-header">
+            <a href="../">
+                <img class="logo" src="../img/logo.png" alt="Gavno Games">
+            </a>
+            <div class="account">
+                |!%<a class="card top-login-button" href="../user/signin">Войти</a>
+                <a class="card top-login-button" href="../user/signup">Регистрация</a>%|
+                |%<a class="card user" href="../user/profile">
+                    <img class="user-image" src="../img/logo.png" alt="User">
+                </a>
+                <a class="card button" href="../data/edit?type=&id=">Добавить статью</a>%|
+            </div>
+        </div>
+        <div class="page" style="backgroud-color: {{ImageColor}}">
+            <h1 class="title">{{Title}}</h1>
+            <h4 class="date">Дата выхода: {{FirstDate}}</h4>
+            <h4 class="update">Дата последнего изменения: {{LastDate}}</h4>
+            <h3 class="description">{{Description}}</h3>
+            <a class="card button" href="../data/edit?type={{Type}}&id={{Id}}">Изменить</a>
+        </div>
+        <div class="bottom-header">
+            <img class="logo mini-logo" src="../img/logo.png" alt="Gavno Games">
+            <div class="bottom-header-text">Все изображения созданы при помощи <a href="https://dream.ai/create" target="_blank">нейросети</a>.</div>
+        </div>
+    </body>
+</html>

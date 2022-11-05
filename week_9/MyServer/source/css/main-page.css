@@ -1,0 +1,157 @@
+.header {
+    min-height: 500px;
+    display: flex;
+    margin: 20px 0;
+    border-radius: 20px;
+    box-shadow: 4px 5px 10px var(--shadow-color);
+    overflow: hidden;
+}
+.header .text-container {
+    background: none;
+}
+.page {
+    background: none;
+    box-shadow: none;
+}
+
+
+
+.gradient {
+    flex: 1;
+    background: none;
+}
+
+
+
+.who-are-we {
+    background: right 70% / auto url(../img/who-are-we.jpg) no-repeat;
+    display: flex;
+    border: none;
+}
+.who-are-we .text-container {
+    color: #bdb1ba;
+    width: 60%;
+}
+.who-are-we>.gradient {
+    background: linear-gradient(to right, #3c1e2a 60%, transparent);
+}
+.who-are-we h1 {
+    font-size: 100px;
+    margin-top: 100px;
+}
+
+
+
+.our-games {
+    display: flex;
+    flex-direction: column;
+    border: none;
+}
+.our-games>h1{
+    text-align: right;
+}
+.games {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.game .text-container {
+    text-align: center;
+}
+.game {
+    width: 30%;
+    min-height: 530px;
+    margin-bottom: 30px;
+    height: 100%;
+    
+    display: flex;
+}
+.game .gradient {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.other-games {
+    background: center top / 100% url(../img/other-games.jpg) no-repeat;
+}
+.other-games>.gradient {
+    background: var(--overlay-color);
+    align-items: center;
+}
+
+
+
+.news {
+    display: flex;
+    flex-direction: column;
+}
+.articles {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    
+    padding-left: 240px;
+    padding-right: 60px;
+}
+
+.article .text-container {
+    text-align: right;
+    max-width: 70%;
+}
+.article {
+    width: 100%;
+    min-height: 250px;
+    margin-bottom: 30px;
+    
+    display: flex;
+}
+.article .gradient {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+}
+
+.article1 {
+    background: left center / auto 200% url(../img/top10.jpg) no-repeat;
+}
+.article1>.gradient {
+    background: linear-gradient(to left, #21262c 70%, transparent);
+}
+
+.article2 {
+    background: left center / auto 200% url(../img/what-to-play.jpg) no-repeat;
+}
+.article2>.gradient {
+    background: linear-gradient(to left, #282538 70%, transparent);
+}
+
+.other-articles {
+    background: center center / 100% url(../img/newspaper.jpg) no-repeat;
+}
+.other-articles>.gradient {
+    background: var(--overlay-color);
+    align-items: center;
+}
+
+
+
+.join-us {
+    background: center center / 100% url(../img/party.jpg) no-repeat;
+    color: antiquewhite;
+    text-align: center;
+    min-height: 250px;
+}
+.join-us>.gradient {
+    background: rgb(45 18 56 / 67%);
+}
+.join-button {
+    background: linear-gradient(to left, #50265d, #2a265d);
+    padding: 20px 30px;
+    font-weight: normal;
+}
+.join-button:hover {
+    background: linear-gradient(to left, #5d2659, #2a265d);
+}

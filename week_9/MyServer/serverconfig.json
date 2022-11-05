@@ -1,0 +1,9 @@
+{
+  //listening url seems like "http://localhost:[port]/"
+  "port": 8080,
+
+  //localroot is a path to directory of static files
+  "localRoot": "./source",
+
+  "defaultFile": "/index.html"
+}

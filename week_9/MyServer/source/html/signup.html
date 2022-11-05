@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="antiquewhite">
+        <title>Регистрация</title>
+        <link rel="icon" href="../img/logo.png">
+        <link rel="stylesheet" href="../css/common.css" type="text/css">
+        <link rel="stylesheet" href="../css/signin.css" type="text/css">
+        <link rel="stylesheet" href="../css/signup.css" type="text/css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="top-header">
+            <a href="../">
+                <img class="logo" src="../img/logo.png" alt="Gavno Games">
+            </a>
+            <div class="account">
+                |!%<a class="card top-login-button" href="../user/signin">Войти</a>
+                <a class="card top-login-button" href="../user/signup">Регистрация</a>%|
+                |%<a class="card user" href="../user/profile">
+                    <img class="user-image" src="../img/logo.png" alt="User">
+                </a>
+                <a class="card button" href="../data/edit?type=&id=">Добавить статью</a>%|
+            </div>
+        </div>
+        <form class="page" method="get" action="../user/login" name="signup" onsubmit="return validate();">
+            <h1>Регистрация</h1>
+            <div class="input-box">
+                <label for="surname">Фамилия</label>
+                <input class="" id="surname" type="text" name="surname" autocomplete="additional-name">
+            </div>
+            <div class="input-box">
+                <label for="name">Имя</label>
+                <input class="" id="name" type="text" name="name" autocomplete="name">
+            </div>
+            <div class="input-box">
+                <label for="birthdate">День рождения</label>
+                <input class="" id="birthdate" type="date" name="birthdate" autocomplete="bday">
+            </div>
+            <div class="input-box">
+                <label for="gender">Выберите гендер</label>
+                <select class="" id="gender" name="gender" autocomplete="sex">
+                    <option value="">Я - небинарная личность</option>
+                    <option value="helicopter">Боевой вертолет Apache</option>
+                    <option value="male">Мужчина</option>
+                    <option value="female">Женщина</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label for="level">Уровень знания программирования</label>
+                <select class="" id="level" name="level">
+                    <option value="0" disabled>Пишу на 1С</option>
+                    <option value="1" selected>Переустанавливаю винду</option>
+                    <option value="2">Делаю семестровку</option>
+                    <option value="3">Написал телеграмм на Ассемблере</option>
+                    <option value="4">Хакнул Пентагон на чистом HTML и CSS</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label for="nickname">Придумайте ник</label>
+                <input class="" id="nickname" type="text" name="nickname" autocomplete="nickname">
+            </div>
+            <div class="input-box">
+                <label for="email">Email</label>
+                <input class="" id="email" type="email" name="email" autocomplete="email">
+            </div>
+            <div class="input-box">
+                <label for="tel">Телефон</label>
+                <input class="" id="tel" type="tel" name="tel" autocomplete="tel">
+            </div>
+            <div class="input-box">
+                <label for="new-password">Придумайте пароль</label>
+                <input class="" id="new-password" type="password" name="new-password" autocomplete="new-password">
+                <label>Должен содержать буквы A-Za-z, числа и символы @!#$% и должен быть длиной от 8 до 30 символов</label>
+            </div>
+            <div class="check-box">
+                <input type="checkbox" id="show-pass">
+                <label for="show-pass">Показать пароль</label>
+            </div>
+            <div class="input-box">
+                <label for="password-accept">Потвердите пароль</label>
+                <input class="" id="password-accept" type="password" name="password-accept" autocomplete="">
+            </div>
+            <input class="" type="submit" id="submit" value="Зарегистрироваться">
+        </form>
+        <div class="bottom-header">
+            <img class="logo mini-logo" src="../img/logo.png" alt="Gavno Games">
+            <div class="bottom-header-text">Все изображения созданы при помощи <a href="https://dream.ai/create" target="_blank">нейросети</a>.</div>
+        </div>
+        <script src="../js/signup.js" type="application/javascript"></script>
+    </body>
+</html>
