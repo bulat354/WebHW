@@ -1,4 +1,5 @@
 ﻿using MyServer.Attributes;
+using MyServer.Results;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -8,71 +9,28 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using MyServer.TemplateEngines;
 
-namespace MyServer.Controllers
+namespace MyServer.Templates
 {
     public static class FileManager
     {
-        private static Dictionary<string, FileMethodInfo> methods;
-
-        public static void Init()
-        {
-            methods = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => Attribute.IsDefined(t, typeof(FileControllerAttribute)))
-                .Select(t => new FileMethodInfo(t))
-                .ToDictionary(c => c.Name, c => c);
-        }
-
-        public static HttpResponse MethodHandler(HttpListenerRequest request, Configs configs)
+        public static IResult MethodHandler(HttpListenerRequest request, Configs configs)
         {
             if (request.RawUrl == null)
             {
                 Debug.ShowWarning("Request without url. Skipped.");
-                return HttpResponse.GetNotFoundResponse();
+                return new BadRequestResult();
             }
 
-            var index = request.RawUrl.IndexOf('?');
-            string rawUrl;
-            if (index > 0)
-                rawUrl = request.RawUrl.Substring(0, index);
-            else
-                rawUrl = request.RawUrl;
-            if (rawUrl.Length < 2)
-                rawUrl = configs.DefaultFile;
-
-            var path = GetPath(rawUrl, configs);
+            var path = GetPath(request.RawUrl, configs);
 
             if (File.Exists(path))
             {
-                if (Path.GetExtension(path).Equals(".html"))
-                {
-                    var exists = methods.TryGetValue(rawUrl, out var method);
-                    if (exists)
-                    {
-                        try
-                        {
-                            var page = TemplateEngine.GenerateHtmlDocument(File.ReadAllText(path), method.Invoke(request), true);
-                            return new HttpResponse(HttpStatusCode.OK, page, "text/html");
-                        }
-                        catch (NotFoundException e)
-                        {
-                            Debug.ShowError(e.Message);
-                            return HttpResponse.GetNotFoundResponse();
-                        }
-                        catch (InvalidRequestException e)
-                        {
-                            Debug.ShowError(e.Message);
-                            return HttpResponse.GetBadRequestResponse();
-                        }
-                    }
-                }
-                var buffer = File.ReadAllBytes(path);
-                return new HttpResponse(HttpStatusCode.OK, buffer, GetContentType(path));
+                return new FileResult(path);
             }
             else
             {
-                return HttpResponse.GetNotFoundResponse();
+                return new NotFoundResult();
             }
         }
 

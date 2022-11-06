@@ -1,4 +1,5 @@
 ﻿using MyServer.Attributes;
+using MyServer.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,16 +15,17 @@ namespace MyServer.Controllers
     {
         private static Dictionary<string, ControllerMethodInfo> methods;
 
-        public static HttpResponse? MethodHandler(HttpListenerRequest request, Configs configs)
+        public static IResult MethodHandler(HttpListenerRequest request, Configs configs)
         {
             if (request.Url == null)
             {
                 Debug.ShowWarning("Request without url. Skipped.");
-                return HttpResponse.GetNotFoundResponse();
+                return new BadRequestResult();
             }
 
             var segments = request.Url.Segments;
-            if (segments.Length < 2) return HttpResponse.GetNotFoundResponse();
+            if (segments.Length < 2)
+                return new NotFoundResult();
 
             string controllerName = segments[1].Replace("/", "").ToLower();
             string httpMethodName = request.HttpMethod.ToLower();
@@ -35,35 +37,19 @@ namespace MyServer.Controllers
 
             if (methods.TryGetValue(fullName, out var method))
             {
-                try
-                {
-                    var result = method.Invoke(request);
+                var result = method.Invoke(request);
 
-                    if (method.IsVoid)
-                        return HttpResponse.GetEmptyResponse();
+                if (method.IsVoid || result == null)
+                    return new EmptyResult();
 
-                    if (result == null)
-                        return HttpResponse.GetNotFoundResponse();
+                if (result is IResult resp)
+                    return resp;
 
-                    if (result is HttpResponse resp)
-                        return resp;
-
-                    return new HttpResponse(HttpStatusCode.OK, result);
-                }
-                catch (NotFoundException e)
-                {
-                    Debug.ShowError(e.Message);
-                    return HttpResponse.GetNotFoundResponse();
-                }
-                catch (InvalidRequestException e)
-                {
-                    Debug.ShowError(e.Message);
-                    return HttpResponse.GetBadRequestResponse();
-                }
+                return new ObjectResult(result);
             }
             else
             {
-                return HttpResponse.GetNotFoundResponse();
+                return new NotFoundResult();
             }
         }
 

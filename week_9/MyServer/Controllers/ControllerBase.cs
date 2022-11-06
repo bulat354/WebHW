@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyServer.Attributes
+namespace MyServer.Controllers
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class DataSourceAttribute : Attribute
+    public abstract class ControllerBase
     {
+
     }
 }

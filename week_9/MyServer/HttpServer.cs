@@ -7,6 +7,8 @@ using System.Text.Json;
 using System.Text;
 using MyServer.Attributes;
 using MyServer.Controllers;
+using MyServer.Templates;
+using MyServer.Results;
 
 namespace MyServer
 {
@@ -52,7 +54,6 @@ namespace MyServer
             _listenerThread.Start();
 
             ControllerManager.Init();
-            FileManager.Init();
         }
 
         private async void Listen()
@@ -83,23 +84,33 @@ namespace MyServer
                 
                 var request = context.Request;
                 var response = context.Response;
+                IResult result;
 
                 try
                 {
                     Debug.RequestReceivedMsg(request.Url.ToString());
 
-                    var result = FileManager.MethodHandler(request, configs);
-                    if (!result.IsSuccess)
+                    result = FileManager.MethodHandler(request, configs);
+                    if ((int)result.GetStatusCode() >= 400)
                         result = ControllerManager.MethodHandler(request, configs);
-
-                    result.ToListenerResponse(response);
-
-                    Debug.ResponseSendedMsg(response.StatusCode);
                 }
                 catch (Exception e)
                 {
-                    HttpResponse.GetInternalErrorResponse(e).ToListenerResponse(response);
+                    result = new InternalErrorResult();
                 }
+
+                var buffer = result.GetResult();
+                var statusCode = (int)result.GetStatusCode();
+                var contentType = result.GetContentType();
+
+                response.ContentEncoding = Encoding.UTF8;
+                response.StatusCode = statusCode;
+                response.ContentType = contentType;
+                response.OutputStream.Write(buffer);
+                response.OutputStream.Close();
+                response.ContentLength64 = buffer.Length;
+
+                Debug.ResponseSendedMsg(statusCode);
 
                 response.Close();
             }
