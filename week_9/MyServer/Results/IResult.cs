@@ -13,4 +13,6 @@ namespace MyServer.Results
         string GetContentType();
         HttpStatusCode GetStatusCode();
     }
+
+    public interface IResult<T> : IResult { }
 }

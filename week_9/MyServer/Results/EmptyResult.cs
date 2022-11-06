@@ -9,7 +9,7 @@ namespace MyServer.Results
 {
     public class EmptyResult : IResult
     {
-        public string GetContentType() => "text/plain";
+        public string GetContentType() => "Application/json";
 
         public byte[] GetResult() => new byte[0];
 

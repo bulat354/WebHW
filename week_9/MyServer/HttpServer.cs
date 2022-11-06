@@ -96,7 +96,7 @@ namespace MyServer
                 }
                 catch (Exception e)
                 {
-                    result = new InternalErrorResult();
+                    result = new InternalErrorResult(e.Message);
                 }
 
                 var buffer = result.GetResult();
@@ -106,9 +106,8 @@ namespace MyServer
                 response.ContentEncoding = Encoding.UTF8;
                 response.StatusCode = statusCode;
                 response.ContentType = contentType;
-                response.OutputStream.Write(buffer);
+                response.OutputStream.Write(buffer, 0, buffer.Length);
                 response.OutputStream.Close();
-                response.ContentLength64 = buffer.Length;
 
                 Debug.ResponseSendedMsg(statusCode);
 

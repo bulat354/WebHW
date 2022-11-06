@@ -45,7 +45,7 @@ namespace MyServer.Controllers
                 if (result is IResult resp)
                     return resp;
 
-                return new ObjectResult(result);
+                return new ObjectResult<object>(result);
             }
             else
             {

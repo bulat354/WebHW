@@ -20,8 +20,10 @@ namespace MyServer.Controllers
 
         [Key, Identity]
         public int Id { get; set; }
-        [Required, MaxLength(20)]
+        [Required, MaxLength(50)]
         public string Password { get; set; }
+        [Required, MaxLength(50)]
+        public string Email { get; set; }
 
         #region With ORM only
         public static List<Account> GetAll()
@@ -29,11 +31,20 @@ namespace MyServer.Controllers
             return orm.Select<Account>(orm.Select()
                 .Select<Account>()).ToList();
         }
-        public static Account GetAccountById(int id)
+        public static Account? GetAccountById(int id)
         {
             return orm.Select<Account>(orm.Select()
                 .Select<Account>()
                 .Where("Id = @id", new SqlParameter("@id", id)))
+                .SingleOrDefault();
+        }
+        public static Account? CheckAccount(Account account)
+        {
+            return orm.Select<Account>(orm.Select()
+                .Select<Account>()
+                .Where("Email = @email AND Password = @pass",
+                    new SqlParameter("@email", account.Email),
+                    new SqlParameter("@pass", account.Password)))
                 .SingleOrDefault();
         }
         public static bool Delete(Account account)

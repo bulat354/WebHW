@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 
 namespace MyServer.Results
 {
-    public class ObjectResult : IResult
+    public class ObjectResult<T> : IResult<T>
     {
-        protected object content;
+        protected T content;
         protected string contentType;
         protected HttpStatusCode statusCode;
 
-        protected ObjectResult(object content, string contentType, HttpStatusCode statusCode)
+        protected ObjectResult(T content, string contentType, HttpStatusCode statusCode)
         {
             this.content = content;
             this.contentType = contentType;
             this.statusCode = statusCode;
         }
 
-        public ObjectResult(object content)
+        public ObjectResult(T content)
             : this(content, "Application/json", HttpStatusCode.OK) { }
 
         public virtual string GetContentType() => contentType;
