@@ -151,7 +151,7 @@ namespace MyORM
             }
         }
 
-        public IEnumerable<T>? Select<T>(SqlSelectBuilder query)
+        public IEnumerable<T> Select<T>(SqlSelectBuilder query)
         {
             return ExecuteReader(query, Parse<T>);
         }
