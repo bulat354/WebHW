@@ -13,22 +13,14 @@ namespace MyServer.Controllers
     [ApiController("accounts")]
     public class AccountController : ControllerBase
     {
-        public static Dictionary<string, int> Sessions = new Dictionary<string, int>();
-
         [HttpPost("login")]
         public IResult Login(string email, string password, string remember)
         {
-            Console.WriteLine($"{email} + {password}");
-
             var result = Account.CheckAccount(new Account() { Email = email, Password = password });
             if (result != null)
             {
-                var guid = Guid.NewGuid().ToString();
-                Sessions[guid] = result.Id;
-
-                var toRemember = remember == "on";
-                SetCookie("IsAuthorized", "true", "/", toRemember ? 24 * 60 * 60 : null);
-                SetCookie("SessionId", guid, "/", toRemember ? 24 * 60 * 60 : null);
+                var session = SessionManager.Instance.CreateSession(result.Id, result.Email);
+                _response.AddHeader("Set-Cookie", $"SessionId={session.Id}; Path=/; Max-Age=120");
                 return new ObjectResult<bool>(true);
             }
 
@@ -38,7 +30,7 @@ namespace MyServer.Controllers
         [HttpGet("all")]
         public IResult GetAccounts()
         {
-            if (CheckSession(out var result))
+            if (TryGetCurrentAccountId(out var result))
             {
                 return (ObjectResult<IEnumerable<Account>>)Account.GetAll();
             }
@@ -49,7 +41,7 @@ namespace MyServer.Controllers
         [HttpGet("current")]
         public IResult GetAccountById()
         {
-            if (CheckSession(out var result))
+            if (TryGetCurrentAccountId(out var result))
             {
                 return (ObjectResult<Account>)Account.GetAccountById(result);
             }
@@ -57,34 +49,23 @@ namespace MyServer.Controllers
             return ErrorResult.Unauthorized();
         }
 
-        private bool CheckSession(out int result)
+        private bool TryGetCurrentAccountId(out int result)
         {
-            var cookie = _request.Cookies["IsAuthorized"];
-            if (cookie != null && cookie.Value == "true")
+            var manager = SessionManager.Instance;
+            var cookie = _request.Cookies["SessionId"];
+            if (cookie != null)
             {
-                cookie = _request.Cookies["SessionId"];
-                if (cookie != null && Sessions.ContainsKey(cookie.Value))
+                var guid = cookie.Value;
+                if (manager.CheckSession(guid))
                 {
-                    result = Sessions[cookie.Value];
+                    var session = manager.GetSession(guid);
+                    result = session.AccountId;
                     return true;
-                }
-                else
-                {
-                    SetCookie("SessionId", "", "/", 0);
-                    SetCookie("IsAuthorized", "", "/", 0);
                 }
             }
 
-            result = 0;
+            result = -1;
             return false;
-        }
-
-        private void SetCookie(string name, string value, string path = "/", int? seconds = null)
-        {
-            if (seconds == null)
-                _response.AddHeader("Set-Cookie", $"{name}={value}; Path={path}");
-            else
-                _response.AddHeader("Set-Cookie", $"{name}={value}; Path={path}; Max-Age={seconds}");
         }
     }
 }
