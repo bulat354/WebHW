@@ -20,12 +20,12 @@ namespace MyServer.Controllers
             if (request.Url == null)
             {
                 Debug.ShowWarning("Request without url. Skipped.");
-                return new BadRequestResult();
+                return ErrorResult.NotFound();
             }
 
             var segments = request.Url.Segments;
             if (segments.Length < 2)
-                return new NotFoundResult();
+                return ErrorResult.NotFound();
 
             string controllerName = segments[1].Replace("/", "").ToLower();
             string httpMethodName = request.HttpMethod.ToLower();
@@ -49,7 +49,7 @@ namespace MyServer.Controllers
             }
             else
             {
-                return new NotFoundResult();
+                return ErrorResult.NotFound();
             }
         }
 

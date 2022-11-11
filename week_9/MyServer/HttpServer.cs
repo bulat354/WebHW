@@ -92,7 +92,7 @@ namespace MyServer
                 }
                 catch (Exception e)
                 {
-                    result = new InternalErrorResult(e.Message);
+                    result = ErrorResult.InternalError(e.Message);
                 }
 
                 var buffer = result.GetResult();

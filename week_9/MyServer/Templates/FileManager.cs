@@ -19,7 +19,7 @@ namespace MyServer.Templates
             if (request.RawUrl == null)
             {
                 Debug.ShowWarning("Request without url. Skipped.");
-                return new BadRequestResult();
+                return ErrorResult.BadRequest();
             }
 
             var path = GetPath(request.RawUrl, configs);
@@ -30,7 +30,7 @@ namespace MyServer.Templates
             }
             else
             {
-                return new NotFoundResult();
+                return ErrorResult.NotFound();
             }
         }
 

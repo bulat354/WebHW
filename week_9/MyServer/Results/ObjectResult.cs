@@ -29,5 +29,8 @@ namespace MyServer.Results
         public virtual byte[] GetResult() => JsonSerializer.SerializeToUtf8Bytes(content, content.GetType());
 
         public virtual HttpStatusCode GetStatusCode() => statusCode;
+
+        public static explicit operator ObjectResult<T>(T obj) =>
+            new ObjectResult<T>(obj);
     }
 }
