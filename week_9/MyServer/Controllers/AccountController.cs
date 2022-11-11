@@ -38,7 +38,7 @@ namespace MyServer.Controllers
         [HttpGet("all")]
         public IResult GetAccounts()
         {
-            if (CheckSession())
+            if (CheckSession(out var result))
             {
                 return (ObjectResult<IEnumerable<Account>>)Account.GetAll();
             }
@@ -46,20 +46,36 @@ namespace MyServer.Controllers
             return ErrorResult.Unauthorized();
         }
 
-        private bool CheckSession()
+        [HttpGet("current")]
+        public IResult GetAccountById()
+        {
+            if (CheckSession(out var result))
+            {
+                return (ObjectResult<Account>)Account.GetAccountById(result);
+            }
+
+            return ErrorResult.Unauthorized();
+        }
+
+        private bool CheckSession(out int result)
         {
             var cookie = _request.Cookies["IsAuthorized"];
             if (cookie != null && cookie.Value == "true")
             {
                 cookie = _request.Cookies["SessionId"];
                 if (cookie != null && Sessions.ContainsKey(cookie.Value))
+                {
+                    result = Sessions[cookie.Value];
                     return true;
+                }
                 else
                 {
                     SetCookie("SessionId", "", "/", 0);
                     SetCookie("IsAuthorized", "", "/", 0);
                 }
             }
+
+            result = 0;
             return false;
         }
 
