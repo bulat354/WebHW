@@ -12,6 +12,10 @@ namespace MyORM.Builder
         private List<string> values = null;
         private string source = null;
 
+        public SqlInsertBuilder(SqlCommand command, MiniORM orm) : base(command, orm)
+        {
+        }
+
         public override SqlCommand GetSqlCommand()
         {
             var text = new StringBuilder();

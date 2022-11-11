@@ -15,16 +15,16 @@ namespace MyServer.Controllers
         public readonly string Name;
         public readonly bool IsVoid;
 
-        private readonly object? controller;
+        private readonly Type controllerType;
         private readonly MethodInfo method;
         private readonly HttpMethodAttribute httpAttribute;
         private readonly ParameterInfo[] parameters;
 
-        public ControllerMethodInfo(object? controller, Type type, MethodInfo method)
+        public ControllerMethodInfo(Type type, MethodInfo method)
         {
             if (Attribute.IsDefined(type, typeof(ApiControllerAttribute)))
             {
-                this.controller = controller;
+                controllerType = type;
 
                 var controllerName = type.GetCustomAttribute<ApiControllerAttribute>().Name.ToLower();
                 if (controllerName == null)
@@ -54,13 +54,12 @@ namespace MyServer.Controllers
 
         public static IEnumerable<ControllerMethodInfo> GetMethods(Type controller)
         {
-            var obj = Activator.CreateInstance(controller);
             return controller.GetMethods()
                 .Where(m => Attribute.IsDefined(m, typeof(HttpMethodAttribute)))
-                .Select(m => new ControllerMethodInfo(obj, controller, m));
+                .Select(m => new ControllerMethodInfo(controller, m));
         }
 
-        public object? Invoke(HttpListenerRequest request)
+        public object? Invoke(HttpListenerRequest request, HttpListenerResponse response)
         {
             NameValueCollection strParams;
             try
@@ -79,8 +78,6 @@ namespace MyServer.Controllers
                 {
                     var param = parameters[i];
                     var str = strParams[param.Name];
-                    if (str == null)
-                        return null;
                     objParams[i] = Convert.ChangeType(strParams[param.Name], param.ParameterType);
                 }
             }
@@ -88,6 +85,10 @@ namespace MyServer.Controllers
             {
                 throw new NotFoundException("Cannot find method with the same parameter types");
             }
+
+            var controller = Activator.CreateInstance(controllerType) as ControllerBase;
+            controller._response = response;
+            controller._request = request;
 
             return method.Invoke(controller, objParams);
         }

@@ -10,14 +10,51 @@ namespace MyORM.Builder
 {
     public abstract class SqlQueryBuilder
     {
-        protected SqlCommand _command = new SqlCommand();
+        protected SqlCommand _command;
+        protected MiniORM _orm;
 
         public abstract SqlCommand GetSqlCommand();
+
+        internal SqlQueryBuilder(SqlCommand command, MiniORM orm)
+        {
+            _command = command;
+            _orm = orm;
+        }
     }
 
-    public abstract class SqlNonQueryBuilder : SqlQueryBuilder { }
+    public abstract class SqlNonQueryBuilder : SqlQueryBuilder
+    {
+        public virtual int Go()
+        {
+            return _orm.ExecuteNonQuery(this);
+        }
 
-    public abstract class SqlScalarBuilder : SqlQueryBuilder { }
+        internal SqlNonQueryBuilder(SqlCommand command, MiniORM orm) : base(command, orm)
+        {
+        }
+    }
 
-    public abstract class SqlReaderBuilder : SqlQueryBuilder { }
+    public abstract class SqlScalarBuilder : SqlQueryBuilder
+    {
+        public virtual object Go()
+        {
+            return _orm.ExecuteScalar(this);
+        }
+
+        internal SqlScalarBuilder(SqlCommand command, MiniORM orm) : base(command, orm)
+        {
+        }
+    }
+
+    public abstract class SqlReaderBuilder : SqlQueryBuilder
+    {
+        public virtual IEnumerable<T> Go<T>()
+        {
+            return _orm.ExecuteReader<T>(this);
+        }
+
+        internal SqlReaderBuilder(SqlCommand command, MiniORM orm) : base(command, orm)
+        {
+        }
+    }
 }

@@ -10,7 +10,7 @@ namespace MyORM
     public abstract class AbstractORM : IDisposable
     {
         public readonly string connectionString;
-        protected SqlConnection connection;
+        protected SqlConnection _connection;
 
         public AbstractORM(string dataSource = "(localdb)\\MSSQLLocalDB", string catalog = "AppDB")
         {
@@ -18,12 +18,12 @@ namespace MyORM
                 throw new ArgumentNullException();
 
             connectionString = $"Data Source={dataSource};Initial Catalog={catalog};Integrated Security=True";
-            connection = new SqlConnection(connectionString);
+            _connection = new SqlConnection(connectionString);
         }
 
         public void Dispose()
         {
-            connection.Dispose();
+            _connection.Dispose();
         }
     }
 }

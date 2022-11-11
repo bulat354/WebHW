@@ -15,11 +15,7 @@ namespace MyServer
     public class HttpServer : IDisposable
     {
         public static string configFileName { get; private set; } = "serverconfig.json";
-        public static Configs configs { get; private set; }
-        static HttpServer()
-        {
-            configs = Configs.Load(configFileName);
-        }
+        public Configs configs { get; private set; }
 
         private HttpListener _listener;
         private Thread _listenerThread;
@@ -92,7 +88,7 @@ namespace MyServer
 
                     result = FileManager.MethodHandler(request, configs);
                     if ((int)result.GetStatusCode() >= 400)
-                        result = ControllerManager.MethodHandler(request, configs);
+                        result = ControllerManager.MethodHandler(request, response, configs);
                 }
                 catch (Exception e)
                 {

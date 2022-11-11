@@ -15,7 +15,7 @@ namespace MyServer.Controllers
     {
         private static Dictionary<string, ControllerMethodInfo> methods;
 
-        public static IResult MethodHandler(HttpListenerRequest request, Configs configs)
+        public static IResult MethodHandler(HttpListenerRequest request, HttpListenerResponse response, Configs configs)
         {
             if (request.Url == null)
             {
@@ -37,7 +37,7 @@ namespace MyServer.Controllers
 
             if (methods.TryGetValue(fullName, out var method))
             {
-                var result = method.Invoke(request);
+                var result = method.Invoke(request, response);
 
                 if (method.IsVoid || result == null)
                     return new EmptyResult();
@@ -58,7 +58,9 @@ namespace MyServer.Controllers
             methods = new Dictionary<string, ControllerMethodInfo>();
             foreach (var m in Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(t => Attribute.IsDefined(t, typeof(ApiControllerAttribute)))
+                .Where(t => Attribute.IsDefined(t, typeof(ApiControllerAttribute)) 
+                    && t.IsSubclassOf(typeof(ControllerBase))
+                    && !t.IsAbstract && t.IsClass)
                 .SelectMany(t => ControllerMethodInfo.GetMethods(t)))
             {
                 if (methods.ContainsKey(m.Name))

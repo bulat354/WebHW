@@ -15,8 +15,6 @@ namespace MyServer.Controllers
     public class Account
     {
         private static MiniORM orm = new MiniORM();
-        private static AccountDAO dao = new AccountDAO();
-        private static AccountRepository repository = new AccountRepository();
 
         [Key, Identity]
         public int Id { get; set; }
@@ -28,87 +26,48 @@ namespace MyServer.Controllers
         #region With ORM only
         public static List<Account> GetAll()
         {
-            return orm.Select<Account>(orm.Select()
-                .Select<Account>()).ToList();
+            return orm
+                .Select<Account>()
+                .Go<Account>()
+                .ToList();
         }
         public static Account? GetAccountById(int id)
         {
-            return orm.Select<Account>(orm.Select()
+            return orm
                 .Select<Account>()
-                .Where("Id = @id", new SqlParameter("@id", id)))
+                .Where("Id = @id", ("@id", id))
+                .Go<Account>()
                 .SingleOrDefault();
         }
         public static Account? CheckAccount(Account account)
         {
-            return orm.Select<Account>(orm.Select()
+            return orm
                 .Select<Account>()
                 .Where("Email = @email AND Password = @pass",
-                    new SqlParameter("@email", account.Email),
-                    new SqlParameter("@pass", account.Password)))
+                    ("@email", account.Email),
+                    ("@pass", account.Password))
+                .Go<Account>()
                 .SingleOrDefault();
         }
         public static bool Delete(Account account)
         {
-            return orm.Delete<Account>(orm.Delete()
+            return orm
                 .Delete<Account>()
-                .Where("Id = @id", new SqlParameter("@id", account.Id)));
+                .Where("Id = @id", ("@id", account.Id))
+                .Go() > 0;
         }
         public static bool Insert(Account account)
         {
-            return orm.Insert<Account>(orm.Insert()
-                .Insert(account));
+            return orm
+                .Insert(account)
+                .Go() > 0;
         }
         public static bool Update(Account account)
         {
-            return orm.Update<Account>(orm.Update()
+            return orm
                 .Update(account)
-                .Where("Id = @id", new SqlParameter("@id", account.Id)));
-        }
-        #endregion
-
-        #region With DAO pattern
-        public static List<Account> GetAllDao()
-        {
-            return dao.GetAll();
-        }
-        public static Account GetAccountByIdDao(int id)
-        {
-            return dao.GetEntityById(id);
-        }
-        public static bool DeleteDao(Account account)
-        {
-            return dao.Delete(account);
-        }
-        public static bool InsertDao(Account account)
-        {
-            return dao.Insert(account);
-        }
-        public static bool UpdateDao(Account account)
-        {
-            return dao.Update(account);
-        }
-        #endregion
-
-        #region With Repository Pattern
-        public static List<Account> GetAllRepository()
-        {
-            return repository.GetAll();
-        }
-        public static Account GetAccountByIdRepository(int id)
-        {
-            return repository.GetValues(new AccountSpecificationById(id)).SingleOrDefault();
-        }
-        public static bool DeleteRepository(Account account)
-        {
-            return repository.Delete(account);
-        }
-        public static bool InsertRepository(Account account)
-        {
-            return repository.Insert(account);
-        }
-        public static bool UpdateRepository(Account account)
-        {
-            return repository.Update(account);
+                .Where("Id = @id", ("@id", account.Id))
+                .Go() > 0;
         }
         #endregion
     }

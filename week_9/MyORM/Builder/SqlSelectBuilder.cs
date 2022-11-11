@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace MyORM.Builder
 {
-
     public class SqlSelectBuilder : SqlReaderBuilder
     {
         private bool isDistinct = false;
@@ -18,6 +17,10 @@ namespace MyORM.Builder
         private string searchCondition = null;
         private string orderSelectors = null;
         private bool isOrderDesc = false;
+
+        public SqlSelectBuilder(SqlCommand command, MiniORM orm) : base(command, orm)
+        {
+        }
 
         public override SqlCommand GetSqlCommand()
         {
@@ -82,13 +85,15 @@ namespace MyORM.Builder
             return this;
         }
 
-        public SqlSelectBuilder Where(string condition, params SqlParameter[] parameters)
+        public SqlSelectBuilder Where(string condition, params (string, object)[] parameters)
         {
             if (searchCondition != null)
                 return this;
 
             searchCondition = condition;
-            _command.Parameters.AddRange(parameters);
+            _command.Parameters.AddRange(parameters
+                                            .Select(x => new SqlParameter(x.Item1, x.Item2))
+                                            .ToArray());
             return this;
         }
 

@@ -14,17 +14,16 @@ namespace MyORM
     {
         public MiniORM(string dataSource = "(localdb)\\MSSQLLocalDB", string catalog = "AppDB") : base(dataSource, catalog) { }
 
-        protected int ExecuteNonQuery(SqlNonQueryBuilder query)
+        internal int ExecuteNonQuery(SqlNonQueryBuilder query)
         {
-            if (connection.State != System.Data.ConnectionState.Closed)
+            if (_connection.State != System.Data.ConnectionState.Closed)
             {
                 Console.WriteLine("ERROR: Connection opened already");
                 return 0;
             }
 
-            connection.Open();
+            _connection.Open();
             var command = query.GetSqlCommand();
-            command.Connection = connection;
             int result;
 
             try
@@ -37,22 +36,21 @@ namespace MyORM
                 Console.WriteLine(e);
                 result = 0;
             }
-            connection.Close();
+            _connection.Close();
 
             return result;
         }
 
-        protected object? ExecuteScalar(SqlScalarBuilder query)
+        internal object? ExecuteScalar(SqlScalarBuilder query)
         {
-            if (connection.State == System.Data.ConnectionState.Open)
+            if (_connection.State == System.Data.ConnectionState.Open)
             {
                 Console.WriteLine("ERROR: Connection opened already");
                 return null;
             }
 
-            connection.Open();
+            _connection.Open();
             var command = query.GetSqlCommand();
-            command.Connection = connection;
             object? result;
 
             try
@@ -65,22 +63,21 @@ namespace MyORM
                 Console.WriteLine(e);
                 result = null;
             }
-            connection.Close();
+            _connection.Close();
 
             return result;
         }
 
-        protected IEnumerable<T> ExecuteReader<T>(SqlReaderBuilder query, Func<SqlDataReader, IEnumerable<T>> parser)
+        internal IEnumerable<T> ExecuteReader<T>(SqlReaderBuilder query)
         {
-            if (connection.State != System.Data.ConnectionState.Closed)
+            if (_connection.State != System.Data.ConnectionState.Closed)
             {
                 Console.WriteLine("ERROR: Connection opened already");
                 return Enumerable.Empty<T>();
             }
 
-            connection.Open();
+            _connection.Open();
             var command = query.GetSqlCommand();
-            command.Connection = connection;
             IEnumerable<T> result;
 
             try
@@ -88,7 +85,7 @@ namespace MyORM
                 var reader = command.ExecuteReader();
 
                 if (reader.HasRows)
-                    result = parser(reader).ToArray();
+                    result = Parse<T>(reader).ToArray();
                 else
                     result = Enumerable.Empty<T>();
             }
@@ -98,12 +95,12 @@ namespace MyORM
                 Console.WriteLine(e);
                 result = Enumerable.Empty<T>();
             }
-            connection.Close();
+            _connection.Close();
 
             return result;
         }
 
-        protected IEnumerable<T> Parse<T>(SqlDataReader reader)
+        internal IEnumerable<T> Parse<T>(SqlDataReader reader)
         {
             var type = typeof(T);
             var colCount = reader.FieldCount;
@@ -151,29 +148,19 @@ namespace MyORM
             }
         }
 
-        public IEnumerable<T> Select<T>(SqlSelectBuilder query)
-        {
-            return ExecuteReader(query, Parse<T>);
-        }
+        public SqlSelectBuilder Select<T>() => 
+            new SqlSelectBuilder(_connection.CreateCommand(), this).Select<T>();
+        public SqlSelectBuilder Select<T>(params string[] selectors) => 
+            new SqlSelectBuilder(_connection.CreateCommand(), this).Select<T>(selectors);
 
-        public bool Insert<T>(SqlInsertBuilder query)
-        {
-            return ExecuteNonQuery(query) > 0;
-        }
+        public SqlInsertBuilder Insert<T>(params T[] objs) => 
+            new SqlInsertBuilder(_connection.CreateCommand(), this).Insert<T>(objs);
 
-        public bool Update<T>(SqlUpdateBuilder query)
-        {
-            return ExecuteNonQuery(query) > 0;
-        }
+        public SqlUpdateBuilder Update<T>(T obj) => 
+            new SqlUpdateBuilder(_connection.CreateCommand(), this).Update<T>(obj);
 
-        public bool Delete<T>(SqlDeleteBuilder query)
-        {
-            return ExecuteNonQuery(query) > 0;
-        }
+        public SqlDeleteBuilder Delete<T>() => 
+            new SqlDeleteBuilder(_connection.CreateCommand(), this).Delete<T>();
 
-        public SqlSelectBuilder Select() => new SqlSelectBuilder();
-        public SqlInsertBuilder Insert() => new SqlInsertBuilder();
-        public SqlUpdateBuilder Update() => new SqlUpdateBuilder();
-        public SqlDeleteBuilder Delete() => new SqlDeleteBuilder();
     }
 }

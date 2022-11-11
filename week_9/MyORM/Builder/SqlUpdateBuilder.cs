@@ -13,6 +13,10 @@ namespace MyORM.Builder
         private string source = null;
         private string searchCondition = null;
 
+        public SqlUpdateBuilder(SqlCommand command, MiniORM orm) : base(command, orm)
+        {
+        }
+
         public override SqlCommand GetSqlCommand()
         {
             var text = new StringBuilder();
@@ -42,13 +46,15 @@ namespace MyORM.Builder
             return this;
         }
 
-        public SqlUpdateBuilder Where(string condition, params SqlParameter[] parameters)
+        public SqlUpdateBuilder Where(string condition, params (string, object)[] parameters)
         {
             if (searchCondition != null)
                 return this;
 
             searchCondition = condition;
-            _command.Parameters.AddRange(parameters);
+            _command.Parameters.AddRange(parameters
+                                            .Select(x => new SqlParameter(x.Item1, x.Item2))
+                                            .ToArray());
             return this;
         }
     }
