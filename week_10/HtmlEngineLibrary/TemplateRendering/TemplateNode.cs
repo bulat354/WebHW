@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
-namespace HtmlEngineLibrary.TemplateElements
+namespace HtmlEngineLibrary.TemplateRendering
 {
     //{{ <Name> (<Expression>) }}
-    public class TemplateNode
+    internal class TemplateNode
     {
         public Match Match { get; }
         public string Content { get; }

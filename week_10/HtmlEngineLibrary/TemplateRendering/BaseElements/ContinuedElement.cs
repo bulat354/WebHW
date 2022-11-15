@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿
 
-namespace HtmlEngineLibrary.TemplateElements
+namespace HtmlEngineLibrary.TemplateRendering
 {
     //{{ <name> [(expression)] begin }}
     //[{{ <name> [(expression)] continue }}]
     //...
     //[{{ <name> [(expression)] continue }}]
     //{{ <name> end }}
-    public abstract class ContinuedElement : MultilineElement
+    internal abstract class ContinuedElement : MultilineElement
     {
         protected TemplateNode[] continues;
 

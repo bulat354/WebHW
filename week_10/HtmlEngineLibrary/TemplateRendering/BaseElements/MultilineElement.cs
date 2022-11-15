@@ -1,16 +1,10 @@
 ﻿using NReco.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace HtmlEngineLibrary.TemplateElements
+namespace HtmlEngineLibrary.TemplateRendering
 {
     //{{ <name> [(expression)] begin }}
     //{{ <name> end }}
-    public abstract class MultilineElement : ITemplateElement
+    internal abstract class MultilineElement : ITemplateElement
     {
         protected TemplateNode begin;
         protected TemplateNode end;

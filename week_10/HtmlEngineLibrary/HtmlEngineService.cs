@@ -1,94 +1,93 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.CodeDom;
-using Microsoft.CSharp;
+﻿using System.Text;
+using HtmlEngineLibrary.TemplateRendering;
 
 namespace HtmlEngineLibrary
 {
-    public class HtmlEngineService : IHtmlEngineService
+    public class HtmlEngineService : IEngineHtmlService
     {
-
         public string GetHtml(string template, object model)
         {
             var renderer = new TemplateRenderer();
             return renderer.Render(template, new StatementVariables(model));
         }
 
-        #region
-        public void GenerateAndSaveInDirectory(string outputPath, string outputFileName, string template, object model)
+        public string GetHtml(Stream stream, object model)
         {
-            throw new NotImplementedException();
-        }
+            var renderer = new TemplateRenderer();
 
-        public void GenerateAndSaveInDirectory(string outputPath, string outputFileName, Stream template, object model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void GenerateAndSaveInDirectory(string outputPath, string outputFileName, byte[] bytes, object model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task GenerateAndSaveInDirectoryAsync(string outputPath, string outputFileName, string template, object model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task GenerateAndSaveInDirectoryAsync(string outputPath, string outputFileName, Stream template, object model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task GenerateAndSaveInDirectoryAsync(string outputPath, string outputFileName, byte[] bytes, object model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetHtml(Stream template, object model)
-        {
-            throw new NotImplementedException();
+            using (var reader = new StreamReader(stream))
+            {
+                var template = reader.ReadToEnd();
+                return renderer.Render(template, new StatementVariables(model));
+            }
         }
 
         public string GetHtml(byte[] bytes, object model)
         {
-            throw new NotImplementedException();
+            var renderer = new TemplateRenderer();
+
+            var template = Encoding.UTF8.GetString(bytes);
+            return renderer.Render(template, new StatementVariables(model));
         }
 
         public byte[] GetHtmlInBytes(string template, object model)
         {
-            throw new NotImplementedException();
+            return Encoding.UTF8.GetBytes(GetHtml(template, model));
         }
 
-        public byte[] GetHtmlInBytes(Stream template, object model)
+        public byte[] GetHtmlInBytes(Stream stream, object model)
         {
-            throw new NotImplementedException();
+            return Encoding.UTF8.GetBytes(GetHtml(stream, model));
         }
 
         public byte[] GetHtmlInBytes(byte[] bytes, object model)
         {
-            throw new NotImplementedException();
+            return Encoding.UTF8.GetBytes(GetHtml(bytes, model));
         }
 
         public Stream GetHtmlInStream(string template, object model)
         {
-            throw new NotImplementedException();
+            return new MemoryStream(GetHtmlInBytes(template, model));
         }
 
-        public Stream GetHtmlInStream(Stream template, object model)
+        public Stream GetHtmlInStream(Stream stream, object model)
         {
-            throw new NotImplementedException();
+            return new MemoryStream(GetHtmlInBytes(stream, model));
         }
 
         public Stream GetHtmlInStream(byte[] bytes, object model)
         {
-            throw new NotImplementedException();
+            return new MemoryStream(GetHtmlInBytes(bytes, model));
         }
-        #endregion
+
+        public void GenerateAndSaveInDirectory(string outputPath, string outputFileName, string template, object model)
+        {
+            File.WriteAllText(Path.Combine(Path.GetFullPath(outputPath), outputFileName), GetHtml(template, model));
+        }
+
+        public void GenerateAndSaveInDirectory(string outputPath, string outputFileName, Stream stream, object model)
+        {
+            File.WriteAllText(Path.Combine(Path.GetFullPath(outputPath), outputFileName), GetHtml(stream, model));
+        }
+
+        public void GenerateAndSaveInDirectory(string outputPath, string outputFileName, byte[] bytes, object model)
+        {
+            File.WriteAllText(Path.Combine(Path.GetFullPath(outputPath), outputFileName), GetHtml(bytes, model));
+        }
+
+        public Task GenerateAndSaveInDirectoryAsync(string outputPath, string outputFileName, string template, object model)
+        {
+            return File.WriteAllTextAsync(Path.Combine(Path.GetFullPath(outputPath), outputFileName), GetHtml(template, model));
+        }
+
+        public Task GenerateAndSaveInDirectoryAsync(string outputPath, string outputFileName, Stream stream, object model)
+        {
+            return File.WriteAllTextAsync(Path.Combine(Path.GetFullPath(outputPath), outputFileName), GetHtml(stream, model));
+        }
+
+        public Task GenerateAndSaveInDirectoryAsync(string outputPath, string outputFileName, byte[] bytes, object model)
+        {
+            return File.WriteAllTextAsync(Path.Combine(Path.GetFullPath(outputPath), outputFileName), GetHtml(bytes, model));
+        }
     }
 }

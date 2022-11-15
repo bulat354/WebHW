@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace HtmlEngineLibrary.TemplateElements
+namespace HtmlEngineLibrary.TemplateRendering
 {
-    public class ForeachElement : MultilineElement
+    internal class ForeachElement : MultilineElement
     {
         public ForeachElement(TemplateNode begin, TemplateNode end) : base(begin, end)
         {

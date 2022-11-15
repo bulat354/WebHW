@@ -1,6 +1,6 @@
 ﻿namespace HtmlEngineLibrary
 {
-    public interface IHtmlEngineService
+    public interface IEngineHtmlService
     {
         string GetHtml(string template, object model);
         string GetHtml(Stream template, object model);

@@ -1,7 +1,5 @@
 ﻿using HtmlEngine.Models;
 using HtmlEngineLibrary;
-using HtmlEngineLibrary.TemplateElements;
-using System.Text.RegularExpressions;
 
 namespace HtmlEngine
 {

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NReco.Linq;
+﻿
 
-namespace HtmlEngineLibrary.TemplateElements
+namespace HtmlEngineLibrary.TemplateRendering
 {
-    public class IfElement : ContinuedElement
+    internal class IfElement : ContinuedElement
     {
-        public IfElement(TemplateNode begin, TemplateNode end, params TemplateNode[] continues) 
+        public IfElement(TemplateNode begin, TemplateNode end, params TemplateNode[] continues)
             : base(begin, end, continues)
         {
         }
@@ -19,14 +14,14 @@ namespace HtmlEngineLibrary.TemplateElements
             var renderer = new TemplateRenderer();
             if (IsTrue(begin.Expression, variables))
                 return renderer.Render(
-                           GetTemplatePart(template, begin, continues.Length > 0 ? continues[0] : end), 
+                           GetTemplatePart(template, begin, continues.Length > 0 ? continues[0] : end),
                        variables);
 
             for (int i = 0; i < continues.Length; i++)
             {
                 if (IsTrue(continues[i].Expression, variables))
                     return renderer.Render(
-                               GetTemplatePart(template, continues[i], continues.Length > i + 1 ? continues[i + 1] : end), 
+                               GetTemplatePart(template, continues[i], continues.Length > i + 1 ? continues[i + 1] : end),
                            variables);
             }
 

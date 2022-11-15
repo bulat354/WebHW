@@ -1,15 +1,9 @@
 ﻿using NReco.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace HtmlEngineLibrary.TemplateElements
+namespace HtmlEngineLibrary.TemplateRendering
 {
     //{{ <name> [(<expression>)] }}
-    public abstract class SinglelineElement : ITemplateElement
+    internal abstract class SinglelineElement : ITemplateElement
     {
         protected TemplateNode node;
 
