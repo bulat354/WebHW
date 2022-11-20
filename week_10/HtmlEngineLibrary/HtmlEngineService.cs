@@ -7,27 +7,22 @@ namespace HtmlEngineLibrary
     {
         public string GetHtml(string template, object model)
         {
-            var renderer = new TemplateRenderer();
-            return renderer.Render(template, new StatementVariables(model));
+            return Template.Create(template).Render(model);
         }
 
         public string GetHtml(Stream stream, object model)
         {
-            var renderer = new TemplateRenderer();
-
             using (var reader = new StreamReader(stream))
             {
                 var template = reader.ReadToEnd();
-                return renderer.Render(template, new StatementVariables(model));
+                return Template.Create(template).Render(model);
             }
         }
 
         public string GetHtml(byte[] bytes, object model)
         {
-            var renderer = new TemplateRenderer();
-
             var template = Encoding.UTF8.GetString(bytes);
-            return renderer.Render(template, new StatementVariables(model));
+            return Template.Create(template).Render(model);
         }
 
         public byte[] GetHtmlInBytes(string template, object model)
