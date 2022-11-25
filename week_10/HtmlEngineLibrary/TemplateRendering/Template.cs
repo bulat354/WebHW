@@ -41,6 +41,7 @@ namespace HtmlEngineLibrary.TemplateRendering
                 else
                     str.Append(symbol);
             }
+            yield return Block.CreateStatic(str.ToString());
         }
 
         private static Block ParseBlock(string template, ref int i)
