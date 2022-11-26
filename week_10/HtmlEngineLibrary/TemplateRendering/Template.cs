@@ -209,7 +209,7 @@ namespace HtmlEngineLibrary.TemplateRendering
                 i = cursor;
                 result = result.Concat(RenderUntil(new LocalValues(values, (name, value)), ref i, x => x.IsEnd));
             }
-            cursor = i;
+            SkipUntil(ref cursor, x => x.IsEnd);
 
             return result;
         }
