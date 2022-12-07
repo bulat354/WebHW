@@ -1,21 +1,33 @@
 using PaintTogetherLibrary;
+using System.Windows.Forms;
 
 namespace PaintTogether
 {
     public partial class Form1 : Form
     {
-        public PaintPointMessage Message { get; set; }
+        public LinkedList<PaintPointMessage> PointsToSend = new LinkedList<PaintPointMessage>();
+        public EventWaitHandle MessageReady = new EventWaitHandle(false, EventResetMode.ManualReset);
 
-        private Bitmap bitmap { get; set; }
-
-        public AutoResetEvent MessageIsReadyEvent;
+        private Bitmap bitmap;
+        private Color currentColor
+        {
+            get { return colorDialog.Color; }
+        }
+        private bool isPainting = false;
+        private PointF resizeCoef
+        {
+            get
+            {
+                var point = new PointF();
+                point.X = picture.Width / (float)bitmap.Width;
+                point.Y = picture.Height / (float)bitmap.Height;
+                return point;
+            }
+        }
 
         public Form1()
         {
             InitializeComponent();
-
-            Message = new PaintPointMessage();
-            MessageIsReadyEvent = new AutoResetEvent(false);
 
             bitmap = new Bitmap(150, 100);
 
@@ -24,9 +36,24 @@ namespace PaintTogether
 
             ControlOff(paintingBox);
             ControlOff(playersTextBox);
+            ControlOff(colorButton);
 
             startButton.Click += (s, e) => Start();
-            picture.MouseClick += (s, e) => Send(e);
+            nameTextBox.KeyUp += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                    Start();
+            };
+            colorButton.Click += (s, e) => SelectColor();
+
+            picture.MouseDown += (s, e) => { isPainting = true; };
+            picture.MouseMove += (s, e) => PaintPoints(e);
+            picture.MouseUp += (s, e) => { isPainting = false; };
+        }
+
+        private void SelectColor()
+        {
+            colorDialog.ShowDialog();
         }
 
         private void Start()
@@ -43,6 +70,7 @@ namespace PaintTogether
 
             ControlOn(paintingBox);
             ControlOn(playersTextBox);
+            ControlOn(colorButton);
         }
 
         private void ControlOff(Control control)
@@ -57,38 +85,44 @@ namespace PaintTogether
             control.Visible = true;
         }
 
-        private void Send(MouseEventArgs e)
+        private void PaintPoints(MouseEventArgs e)
         {
-            var result = colorDialog.ShowDialog();
+            if (!isPainting)
+                return;
 
-            if (result == DialogResult.OK)
+            if (e.X < 0 || e.Y < 0 || 
+                e.X >= picture.Width || 
+                e.Y >= picture.Height) 
+                return;
+
+            var coef = resizeCoef;
+            var location = new Point((int)Math.Round(e.X / coef.X), (int)Math.Round(e.Y / coef.Y));
+            var color = currentColor;
+
+            if (bitmap.GetPixel(location.X, location.Y) != color)
             {
-                lock (Message)
+                var message = new PaintPointMessage()
                 {
-                    Message.Color = colorDialog.Color;
-                    Message.Location = e.Location;
+                    Color = color,
+                    Location = location
+                };
+
+                lock (PointsToSend)
+                {
+                    PointsToSend.AddLast(message);
+                    if (PointsToSend.Count > 0)
+                        MessageReady.Set();
                 }
 
-                Paint(Message);
-
-                MessageIsReadyEvent.Set();
+                PaintPoint(message);
             }
         }
 
-        public void Paint(PaintPointMessage message)
+        public void PaintPoint(PaintPointMessage message)
         {
-            var location = new Point(message.Location.X / 4, message.Location.Y / 4);
+            var location = new Point(message.Location.X, message.Location.Y);
             var color = message.Color;
 
-            for (int i = -2; i < 3; i++)
-                for (int j = -2; j < 3; j++)
-                {
-                    var x = location.X + i;
-                    var y = location.Y + j;
-                    var prevColor = bitmap.GetPixel(x, y);
-                    var newColor = MixColors(prevColor, color, 0.75);
-                    bitmap.SetPixel(x, y, newColor);
-                }
             bitmap.SetPixel(location.X, location.Y, color);
 
             picture.Image = bitmap;

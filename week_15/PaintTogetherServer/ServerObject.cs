@@ -14,7 +14,8 @@ namespace PaintTogetherServer
         TcpListener tcpListener = new TcpListener(IPAddress.Any, 8888);
         List<ClientObject> clients = new List<ClientObject>();
 
-        List<string> points = new List<string>();
+        Dictionary<(int, int), PaintPointMessage> dict = 
+            new Dictionary<(int, int), PaintPointMessage>();
 
         protected internal void RemoveConnection(string id)
         {
@@ -74,21 +75,9 @@ namespace PaintTogetherServer
             }
         }
 
-        protected internal async Task BroadcastMessageAsync(string message, string id)
+        protected internal void AddPoint(PaintPointMessage message)
         {
-            foreach (var client in clients)
-            {
-                if (client.Id != id)
-                {
-                    await client.Writer.WriteLineAsync(message);
-                    await client.Writer.FlushAsync();
-                }
-            }
-        }
-
-        protected internal void AddPoint(string message)
-        {
-            points.Add(message);
+            dict[(message.Location.X, message.Location.Y)] = message;
         }
 
         protected internal async Task SendUsers(string id)
@@ -115,9 +104,9 @@ namespace PaintTogetherServer
 
             if (client != null)
             {
-                foreach (var point in points)
+                foreach (var point in dict)
                 {
-                    await client.Writer.WriteLineAsync(point);
+                    await client.Writer.WriteLineAsync(point.Value.ToString());
                     await client.Writer.FlushAsync();
                 }
             }

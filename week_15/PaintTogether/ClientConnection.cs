@@ -55,20 +55,32 @@ namespace PaintTogether
             while (true)
             {
                 string? message = GetMessage();
+                if (message == null)
+                    continue;
                 await writer.WriteLineAsync(message);
                 await writer.FlushAsync();
             }
         }
 
-        private string GetMessage()
+        private string? GetMessage()
         {
-            Form.MessageIsReadyEvent.WaitOne();
-
-            lock (Form.Message)
+            Form.MessageReady.WaitOne();
+            var list = Form.PointsToSend;
+            lock (list)
             {
-                var message = Form.Message.ToString();
-                return message;
+                if (list.Count > 0)
+                {
+                    var node = list.First;
+                    list.RemoveFirst();
+                    if (node != null)
+                        return node.Value.ToString();
+                }
+                else
+                {
+                    Form.MessageReady.Reset();
+                }
             }
+            return null;
         }
 
         private async Task ReceiveMessageAsync()
@@ -105,7 +117,7 @@ namespace PaintTogether
             }
             else if (result is PaintPointMessage paint)
             {
-                action = () => Form.Paint(paint);
+                action = () => Form.PaintPoint(paint);
             }
 
             if (action != null)

@@ -34,6 +34,7 @@
             this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.paintingBox = new System.Windows.Forms.GroupBox();
             this.picture = new System.Windows.Forms.PictureBox();
+            this.colorButton = new System.Windows.Forms.Button();
             this.paintingBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picture)).BeginInit();
             this.SuspendLayout();
@@ -69,7 +70,7 @@
             this.playersTextBox.Name = "playersTextBox";
             this.playersTextBox.ReadOnly = true;
             this.playersTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.playersTextBox.Size = new System.Drawing.Size(158, 440);
+            this.playersTextBox.Size = new System.Drawing.Size(158, 381);
             this.playersTextBox.TabIndex = 2;
             // 
             // paintingBox
@@ -90,24 +91,34 @@
             this.picture.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.picture.BackColor = System.Drawing.SystemColors.Window;
             this.picture.Location = new System.Drawing.Point(6, 26);
             this.picture.Name = "picture";
             this.picture.Size = new System.Drawing.Size(600, 400);
-            this.picture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picture.TabIndex = 0;
             this.picture.TabStop = false;
+            // 
+            // colorButton
+            // 
+            this.colorButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.colorButton.Location = new System.Drawing.Point(12, 399);
+            this.colorButton.Name = "colorButton";
+            this.colorButton.Size = new System.Drawing.Size(158, 53);
+            this.colorButton.TabIndex = 4;
+            this.colorButton.Text = "Выбрать цвет";
+            this.colorButton.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(801, 464);
+            this.Controls.Add(this.colorButton);
             this.Controls.Add(this.paintingBox);
             this.Controls.Add(this.playersTextBox);
             this.Controls.Add(this.startButton);
             this.Controls.Add(this.nameTextBox);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Paint Together";
             this.paintingBox.ResumeLayout(false);
@@ -125,5 +136,6 @@
         private ColorDialog colorDialog;
         private GroupBox paintingBox;
         private PictureBox picture;
+        private Button colorButton;
     }
 }

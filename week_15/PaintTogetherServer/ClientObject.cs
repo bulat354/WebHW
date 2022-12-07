@@ -56,8 +56,12 @@ namespace PaintTogetherServer
                             continue;
 
                         Console.WriteLine($"{userName}: {message}");
-                        await server.BroadcastMessageAsync(message, Id);
-                        server.AddPoint(message);
+
+                        var parsed = BaseMessage.ParseMessage(message);
+                        await server.BroadcastMessageAsync(parsed, Id);
+
+                        if (parsed is PaintPointMessage point)
+                            server.AddPoint(point);
                     }
                     catch
                     {
