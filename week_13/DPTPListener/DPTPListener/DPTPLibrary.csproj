@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\week_13\MyProtocol\MyProtocol.csproj" />
+    <ProjectReference Include="..\..\MyProtocol\MyProtocol.csproj" />
   </ItemGroup>
 
 </Project>

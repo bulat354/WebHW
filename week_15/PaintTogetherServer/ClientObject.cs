@@ -1,4 +1,5 @@
-﻿using PaintTogetherLibrary;
+﻿using DPTPLibrary;
+using PaintTogetherLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,37 +12,30 @@ namespace PaintTogetherServer
     internal class ClientObject
     {
         protected internal string Id { get; } = Guid.NewGuid().ToString();
-        protected internal string userName { get; protected set; }
+        protected internal Player userName { get; protected set; }
 
-        protected internal StreamWriter Writer { get; }
-        protected internal StreamReader Reader { get; }
-
-        TcpClient client;
+        protected internal DPTPClient client;
         ServerObject server;
 
-        public ClientObject(TcpClient tcpClient, ServerObject serverObject)
+        PlayerPackager playerPackager = new PlayerPackager();
+        PixelPackager pixelPackager = new PixelPackager();
+
+        public ClientObject(DPTPClient tcpClient, ServerObject serverObject)
         {
             client = tcpClient;
             server = serverObject;
-
-            var stream = client.GetStream();
-
-            Reader = new StreamReader(stream);
-            Writer = new StreamWriter(stream);
         }
 
         public async Task ProcessAsync()
         {
             try
             {
-                userName = await Reader.ReadLineAsync();
+                var packet = await client.ReceivePacket();
+                userName = playerPackager.FromPacket(packet);                
+                
                 string message = $"{userName} присоединился";
 
-                var join = new PlayerJoinMessage()
-                {
-                    Name = userName
-                };
-                await server.BroadcastMessageAsync(join, Id);
+                await server.BroadcastMessageAsync(packet, Id);
                 Console.WriteLine(message);
 
                 await server.SendUsers(Id);
@@ -51,28 +45,22 @@ namespace PaintTogetherServer
                 {
                     try
                     {
-                        message = await Reader.ReadLineAsync();
-                        if (message == null)
-                            continue;
+                        packet = await client.ReceivePacket();
+                        var pixel = pixelPackager.FromPacket(packet);
 
-                        Console.WriteLine($"{userName}: {message}");
+                        Console.WriteLine($"{userName}: {pixel}");
 
-                        var parsed = BaseMessage.ParseMessage(message);
-                        await server.BroadcastMessageAsync(parsed, Id);
+                        await server.BroadcastMessageAsync(packet, Id);
 
-                        if (parsed is PaintPointMessage point)
-                            server.AddPoint(point);
+                        server.AddPoint(pixel);
                     }
                     catch
                     {
                         message = $"{userName} отсоединился";
                         
                         Console.WriteLine(message);
-                        var disconnect = new PlayerDisconnectMessage()
-                        {
-                            Name = userName
-                        };
-                        await server.BroadcastMessageAsync(disconnect, Id);
+                        userName.IsJoined = false;
+                        await server.BroadcastMessageAsync(playerPackager.ToPacket(userName), Id);
 
                         break;
                     }
@@ -90,8 +78,6 @@ namespace PaintTogetherServer
 
         protected internal void Close()
         {
-            Writer.Close();
-            Reader.Close();
             client.Close();
         }
     }

@@ -1,4 +1,6 @@
-﻿using PaintTogetherLibrary;
+﻿using DPTPLibrary;
+using MyProtocol;
+using PaintTogetherLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +13,14 @@ namespace PaintTogetherServer
 {
     internal class ServerObject
     {
-        TcpListener tcpListener = new TcpListener(IPAddress.Any, 8888);
+        DPTPListener listener = new DPTPListener(IPAddress.Any, 8888);
         List<ClientObject> clients = new List<ClientObject>();
 
-        Dictionary<(int, int), PaintPointMessage> dict = 
-            new Dictionary<(int, int), PaintPointMessage>();
+        PlayerPackager playerPackager = new PlayerPackager();
+        PixelPackager pixelPackager = new PixelPackager();
+
+        Dictionary<(int, int), Pixel> dict = 
+            new Dictionary<(int, int), Pixel>();
 
         protected internal void RemoveConnection(string id)
         {
@@ -32,14 +37,14 @@ namespace PaintTogetherServer
         {
             try
             {
-                tcpListener.Start();
+                listener.Start();
                 Console.WriteLine("Сервер запущен. Ожидание подключений...");
 
                 while (true)
                 {
-                    TcpClient tcpClient = await tcpListener.AcceptTcpClientAsync();
+                    DPTPClient client = await listener.AcceptClientAsync();
 
-                    ClientObject clientObject = new ClientObject(tcpClient, this);
+                    ClientObject clientObject = new ClientObject(client, this);
                     clients.Add(clientObject);
                     Task.Run(clientObject.ProcessAsync);
                 }
@@ -60,24 +65,23 @@ namespace PaintTogetherServer
             {
                 client.Close();
             }
-            tcpListener.Stop();
+            listener.Stop();
         }
 
-        protected internal async Task BroadcastMessageAsync(BaseMessage message, string id)
+        protected internal async Task BroadcastMessageAsync(DPTPPacket packet, string id)
         {
             foreach (var client in clients)
             {
                 if (client.Id != id)
                 {
-                    await client.Writer.WriteLineAsync(message.ToString());
-                    await client.Writer.FlushAsync();
+                    await client.client.SendPacket(packet);
                 }
             }
         }
 
-        protected internal void AddPoint(PaintPointMessage message)
+        protected internal void AddPoint(Pixel pixel)
         {
-            dict[(message.Location.X, message.Location.Y)] = message;
+            dict[(pixel.Location.X, pixel.Location.Y)] = pixel;
         }
 
         protected internal async Task SendUsers(string id)
@@ -88,12 +92,7 @@ namespace PaintTogetherServer
             {
                 foreach (var c in clients)
                 {
-                    var message = new PlayerJoinMessage()
-                    {
-                        Name = c.userName
-                    };
-                    await client.Writer.WriteLineAsync(message.ToString());
-                    await client.Writer.FlushAsync();
+                    await client.client.SendPacket(playerPackager.ToPacket(c.userName));
                 }
             }
         }
@@ -106,8 +105,7 @@ namespace PaintTogetherServer
             {
                 foreach (var point in dict)
                 {
-                    await client.Writer.WriteLineAsync(point.Value.ToString());
-                    await client.Writer.FlushAsync();
+                    await client.client.SendPacket(pixelPackager.ToPacket(point.Value));
                 }
             }
         }

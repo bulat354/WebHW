@@ -1,19 +1,20 @@
-﻿using PaintTogetherLibrary;
+﻿using MyProtocol;
+using PaintTogetherLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using DPTPLibrary;
 
 namespace PaintTogether
 {
     internal class ClientConnection
     {
         private string userName;
-
-        private StreamReader? reader;
-        private StreamWriter? writer;
+        private DPTPClient client;
 
         public Form1 Form { get; set; }
 
@@ -21,51 +22,42 @@ namespace PaintTogether
         {
             var host = "127.0.0.1";
             var port = 8888;
-            using TcpClient client = new TcpClient();
 
             this.userName = userName;
 
             try
             {
-                client.Connect(host, port);
+                client = new DPTPClient(host, port);
 
-                reader = new StreamReader(client.GetStream());
-                writer = new StreamWriter(client.GetStream());
-
-                if (writer is null || reader is null)
-                    return;
-
-                Task.Run(ReceiveMessageAsync);
-                await SendMessageAsync();
+                Task.Run(ReceiveBytesAsync);
+                await SendBytesAsync();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
 
-            writer?.Close();
-            reader?.Close();
+            client.Close();
         }
 
-        private async Task SendMessageAsync()
+        private async Task SendBytesAsync()
         {
-            await writer.WriteLineAsync(userName);
-            await writer.FlushAsync();
+            var packet = new PlayerPackager().ToPacket(new Player(userName, true));
+            await client.SendPacket(packet);
 
             while (true)
             {
-                string? message = GetMessage();
-                if (message == null)
-                    continue;
-                await writer.WriteLineAsync(message);
-                await writer.FlushAsync();
+                packet = GetPacket();
+                if (packet != null)
+                    await client.SendPacket(packet);
             }
         }
 
-        private string? GetMessage()
+        private DPTPPacket? GetPacket()
         {
             Form.MessageReady.WaitOne();
             var list = Form.PointsToSend;
+            var packager = new PixelPackager();
             lock (list)
             {
                 if (list.Count > 0)
@@ -73,7 +65,7 @@ namespace PaintTogether
                     var node = list.First;
                     list.RemoveFirst();
                     if (node != null)
-                        return node.Value.ToString();
+                        return packager.ToPacket(node.Value);
                 }
                 else
                 {
@@ -83,17 +75,17 @@ namespace PaintTogether
             return null;
         }
 
-        private async Task ReceiveMessageAsync()
+        private async Task ReceiveBytesAsync()
         {
             while (true)
             {
                 try
                 {
-                    string? message = await reader.ReadLineAsync();
+                    var packet = await client.ReceivePacket();
 
-                    if (string.IsNullOrEmpty(message))
+                    if (packet == null)
                         continue;
-                    ProcessMessage(message);
+                    ProcessPacket(packet);
                 }
                 catch
                 {
@@ -102,28 +94,26 @@ namespace PaintTogether
             }
         }
 
-        private void ProcessMessage(string message)
+        private void ProcessPacket(DPTPPacket packet)
         {
-            var result = BaseMessage.ParseMessage(message);
-            Action action = null;
+            var packager = PackagerBuilder.GetPackager(packet);
+            var result = packager.FromPacket(packet);
+            Action? action = null;
 
-            if (result is PlayerJoinMessage join)
+            if (result is Player player)
             {
-                action = () => Form.AddPlayer(join.Name);
+                if (player.IsJoined)
+                    action = () => Form.AddPlayer(player.Name);
+                else
+                    action = () => Form.RemovePlayer(player.Name);
             }
-            else if (result is PlayerDisconnectMessage disconnect)
+            else if (result is Pixel pixel)
             {
-                action = () => Form.RemovePlayer(disconnect.Name);
-            }
-            else if (result is PaintPointMessage paint)
-            {
-                action = () => Form.PaintPoint(paint);
+                action = () => Form.PaintPoint(pixel);
             }
 
             if (action != null)
-            {
                 Form.Invoke(action);
-            }
         }
     }
 }

@@ -67,6 +67,94 @@ FIELD STRUCTURE
             return packet.ToArray();
         }
 
+        public static async Task<DPTPPacket?> ParseAsync(Stream stream)
+        {
+            var encrypted = await ParseEncrypting(stream);
+            if (encrypted == null)
+                return null;
+
+            var xpacket = new DPTPPacket();
+
+            xpacket = await ParseId(stream, xpacket);
+            xpacket = await ParseFields(stream, xpacket, encrypted.Value);
+
+            return xpacket;
+        }
+
+        private static async Task<DPTPPacket?> ParseFields(Stream stream, DPTPPacket? xpacket, bool? encrypted)
+        {
+            if (encrypted == null || xpacket == null)
+                return null;
+
+            var info = new byte[2];
+            byte[]? contents;
+
+            while (true)
+            {
+                if (await stream.ReadAsync(info, 0, info.Length) < 2)
+                    return null;
+
+                var id = info[0];
+                var size = info[1];
+
+                if (id == 0xFF && size == 0x00)
+                    return encrypted.Value ? DecryptPacket(xpacket) : xpacket;
+
+                contents = size == 0 ? null : new byte[size];
+                if (contents != null && await stream.ReadAsync(contents, 0, size) < size)
+                    return null;
+
+                xpacket.Fields.Add(new DPTPPacketField
+                {
+                    FieldID = id,
+                    FieldSize = size,
+                    Contents = contents
+                });
+            }
+        }
+
+        private static async Task<DPTPPacket?> ParseId(Stream stream, DPTPPacket xpacket)
+        {
+            if (xpacket == null)
+                return null;
+
+            var id = new byte[2];
+            if (await stream.ReadAsync(id, 0, id.Length) < 2)
+                return null;
+
+            xpacket.PacketType = id[0];
+            xpacket.PacketSubtype = id[1];
+
+            return xpacket;
+        }
+
+        private static async Task<bool?> ParseEncrypting(Stream stream)
+        {
+            var headers = new byte[3];
+            if (await stream.ReadAsync(headers, 0, headers.Length) < 3)
+                return null;
+
+            var encrypted = false;
+
+            if (headers[0] != 0xAF ||
+                headers[1] != 0xAA ||
+                headers[2] != 0xAF)
+            {
+                if (headers[0] == 0x95 ||
+                    headers[1] == 0xAA ||
+                    headers[2] == 0xFF)
+                {
+                    encrypted = true;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return encrypted;
+        }
+
         public static DPTPPacket Parse(byte[] packet, bool markAsEncrypted = false)
         {
             //Минимальный размер пакета — 7 байт.

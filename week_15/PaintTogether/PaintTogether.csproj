@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\week_13\DPTPListener\DPTPListener\DPTPLibrary.csproj" />
     <ProjectReference Include="..\PaintTogetherLibrary\PaintTogetherLibrary.csproj" />
   </ItemGroup>
 

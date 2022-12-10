@@ -22,7 +22,16 @@ namespace MyProtocol
 
         public static DPTPPacket Serialize(byte type, byte subtype, object obj, bool strict = false)
         {
-            var fields = GetFields(obj.GetType());
+            var objType = obj.GetType();
+            var fields = GetFields(objType);
+
+            var attribute = objType.GetCustomAttribute<DPTPTypeAttribute>();
+
+            if (attribute != null)
+            {
+                type = attribute.Type;
+                subtype = attribute.SubType;
+            }
 
             if (strict)
             {

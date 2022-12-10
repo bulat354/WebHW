@@ -5,38 +5,20 @@ namespace PaintTogether
 {
     public partial class Form1 : Form
     {
-        public LinkedList<PaintPointMessage> PointsToSend = new LinkedList<PaintPointMessage>();
+        public LinkedList<Pixel> PointsToSend = new LinkedList<Pixel>();
         public EventWaitHandle MessageReady = new EventWaitHandle(false, EventResetMode.ManualReset);
 
-        private Bitmap bitmap;
-        private Color currentColor
-        {
-            get { return colorDialog.Color; }
-        }
+        private Bitmap bitmap = new Bitmap(150, 100);
+        private Color currentColor { get { return colorDialog.Color; } }
         private bool isPainting = false;
-        private PointF resizeCoef
-        {
-            get
-            {
-                var point = new PointF();
-                point.X = picture.Width / (float)bitmap.Width;
-                point.Y = picture.Height / (float)bitmap.Height;
-                return point;
-            }
-        }
+
+        private Point? lastLocation;
 
         public Form1()
         {
             InitializeComponent();
 
-            bitmap = new Bitmap(150, 100);
-
-            ControlOn(nameTextBox);
-            ControlOn(startButton);
-
-            ControlOff(paintingBox);
-            ControlOff(playersTextBox);
-            ControlOff(colorButton);
+            ToStartScreen();
 
             startButton.Click += (s, e) => Start();
             nameTextBox.KeyUp += (s, e) =>
@@ -44,14 +26,32 @@ namespace PaintTogether
                 if (e.KeyCode == Keys.Enter)
                     Start();
             };
-            colorButton.Click += (s, e) => SelectColor();
+            colorButton.Click += (s, e) => ShowColorDialog();
 
             picture.MouseDown += (s, e) => { isPainting = true; };
             picture.MouseMove += (s, e) => PaintPoints(e);
-            picture.MouseUp += (s, e) => { isPainting = false; };
+            picture.MouseUp += (s, e) => { isPainting = false; lastLocation = null; };
+            picture.Image = bitmap;
+            picture.Invalidate();
         }
 
-        private void SelectColor()
+        private void ToStartScreen(bool state = true)
+        {
+            SwitchState(nameTextBox, state);
+            SwitchState(startButton, state);
+
+            SwitchState(paintingBox, !state);
+            SwitchState(playersTextBox, !state);
+            SwitchState(colorButton, !state);
+        }
+
+        private void SwitchState(Control control, bool state = false)
+        {
+            control.Enabled = state;
+            control.Visible = state;
+        }
+
+        private void ShowColorDialog()
         {
             colorDialog.ShowDialog();
         }
@@ -61,87 +61,64 @@ namespace PaintTogether
             if (nameTextBox.Text == null || nameTextBox.Text.Length == 0)
                 return;
 
+            ToStartScreen(false);
+
             var client = new ClientConnection();
             client.Form = this;
             Task.Run(() => client.ListenAsync(nameTextBox.Text));
-
-            ControlOff(nameTextBox);
-            ControlOff(startButton);
-
-            ControlOn(paintingBox);
-            ControlOn(playersTextBox);
-            ControlOn(colorButton);
-        }
-
-        private void ControlOff(Control control)
-        {
-            control.Enabled = false;
-            control.Visible = false;
-        }
-
-        private void ControlOn(Control control)
-        {
-            control.Enabled = true;
-            control.Visible = true;
         }
 
         private void PaintPoints(MouseEventArgs e)
         {
-            if (!isPainting)
-                return;
-
-            if (e.X < 0 || e.Y < 0 || 
-                e.X >= picture.Width || 
-                e.Y >= picture.Height) 
-                return;
-
-            var coef = resizeCoef;
-            var location = new Point((int)Math.Round(e.X / coef.X), (int)Math.Round(e.Y / coef.Y));
-            var color = currentColor;
-
-            if (bitmap.GetPixel(location.X, location.Y) != color)
+            if (isPainting && picture.IsInBounds(e.Location))
             {
-                var message = new PaintPointMessage()
-                {
-                    Color = color,
-                    Location = location
-                };
+                var coef = picture.GetScale();
+                var end = new PointF(e.X / coef.X, e.Y / coef.Y).Round();
+                var color = currentColor;
 
-                lock (PointsToSend)
+                var points = lastLocation == null
+                    ? new[] { end }
+                    : GetMiddlePoints(lastLocation.Value, end);
+                lastLocation = end;
+
+                var messages = points
+                    .Where(x => bitmap.GetPixel(x) != color)
+                    .Select(x => x.ToMessage(color));
+
+                lock(PointsToSend) { PointsToSend.AddLastRange(messages); }
+                PaintPoint(messages.ToArray());
+
+                lock(PointsToSend)
                 {
-                    PointsToSend.AddLast(message);
                     if (PointsToSend.Count > 0)
                         MessageReady.Set();
                 }
-
-                PaintPoint(message);
             }
         }
 
-        public void PaintPoint(PaintPointMessage message)
+        private IEnumerable<Point> GetMiddlePoints(Point start, Point end)
         {
-            var location = new Point(message.Location.X, message.Location.Y);
-            var color = message.Color;
+            var count = Math.Max(Math.Abs(end.X - start.X), Math.Abs(end.Y - start.Y));
+            var difX = (end.X - start.X) / (float)count;
+            var difY = (end.Y - start.Y) / (float)count;
 
-            bitmap.SetPixel(location.X, location.Y, color);
+            yield return start;
+            for (int i = 1; i < count; i++)
+            {
+                yield return new PointF(start.X + difX * i, start.Y + difY * i).Round();
+            }
+            yield return end;
+        }
+
+        public void PaintPoint(params Pixel[] messages)
+        {
+            foreach (var message in messages)
+            {
+                bitmap.SetPixel(message.Location, message.Color);
+            }
 
             picture.Image = bitmap;
             picture.Invalidate();
-        }
-
-        private Color MixColors(Color first, Color second, double proportion)
-        {
-            var r = first.R * (1 - proportion) + second.R * proportion;
-            var g = first.G * (1 - proportion) + second.G * proportion;
-            var b = first.B * (1 - proportion) + second.B * proportion;
-            var a = first.A * (1 - proportion) + second.A * proportion;
-
-            var intR = Math.Min((int)r, 255);
-            var intG = Math.Min((int)g, 255);
-            var intB = Math.Min((int)b, 255);
-            var intA = Math.Min((int)a, 255);
-
-            return Color.FromArgb(intA, intR, intG, intB);
         }
 
         public void AddPlayer(string name)
